@@ -4,7 +4,7 @@ from parse import parse
 import numpy as np
 import sympy as sp
 from scipy import linalg
-from mpmath import mp
+#from mpmath import mp
 
 import matplotlib.pyplot as plt
 
