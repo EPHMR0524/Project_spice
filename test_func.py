@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 
 if __name__ == "__main__":#當此在主程式可用
     file_name = input("file name: ")
+    #file_name="D:\project_spice_new\netlist_put_in_here\\"+file_name
     circuit_name, components, namelist = parse(file_name)
     typelist=[c.type_ for c in components]
     nodelist = [c.nodes for c in components]
