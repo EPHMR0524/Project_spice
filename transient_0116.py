@@ -35,7 +35,8 @@ templist=[]
 timefault=[]
 time_neg=[]
 revive_step=0
-fault=0;
+fault=0
+fuew=0
 #將nodelist中元素加入templist以方便後續計算node數
 #templist:唯一暫存容器
 for i in range(element):
