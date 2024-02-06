@@ -1,0 +1,17 @@
+* NMOS Characteristics
+
+* Model and Temperature
+*.model N_18 NMOS(Vto=0.4 Lambda=0.02)
+*.options TEMP=25
+
+* Netlist
+MP1 Vs Vg VDD VDD P_18 W=1u L=0.18u
+MN1 Vs Vg VSS VSS N_18 W=1u L=0.18u
+* DC Sweep
+VD VDD 0 dc 1
+Vg Vg 0 SIN 0 1 50
+*Vg Vg 0 dc 0
+VS VSS 0 dc 0
+
+
+.end
