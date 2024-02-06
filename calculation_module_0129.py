@@ -470,7 +470,6 @@ def Dc_analysis(
     vds_his = []
     vgs_his = []
     while voltage != end_V :
-        #print(voltage)
         vectorB_mos = np.zeros(matrix_size)
         matrixA_mos = np.zeros((matrix_size, matrix_size))
         iti_time = 0
@@ -848,19 +847,19 @@ def Dc_analysis(
                 mos_ptr += 1
                 width = unit_symbol(components[mos_device[u]].args["w"])
                 length = unit_symbol(components[mos_device[u]].args["l"])
-                print(width," ",length," p",)
+                #print(width," ",length," ",Vgs," ",Vds)
                 W_L = width / length
                 
                 # Cutoff
                 if Vgs < Vt:
-                    #print("cutoff_p",Vgs," ",Vds)
+                    print("cutoff_p",Vgs," ",Vds)
                     a12 = 0
                     a11 = sp.exp((Vgs - Vt) / 0.0258528413 - 32.2361913) / 0.0258528413
                     b1 = -(a11 * 0.0258528413 - a11 * (Vgs))
                 
                 # Triode
                 elif (Vgs - Vt) >= Vds:
-                    #print("triode_p",Vgs," ",Vds)
+                    print("triode_p",Vgs," ",Vds)
                     a11 = W_L * k_p * Vds
                     a12 = W_L * k_p * ((Vgs - Vt) - Vds)
                     b1 = -(
@@ -871,7 +870,7 @@ def Dc_analysis(
 
                 # Sat
                 elif (Vgs - Vt) < Vds:
-                    #print("sat_p",Vgs," ",Vds)
+                    print("sat_p",Vgs," ",Vds)
                     a11 = (
                         (1 / 2)
                         * W_L
@@ -897,12 +896,10 @@ def Dc_analysis(
                 Vgs = vgs_his[u][-1]
                 Vds = vds_his[u][-1]
                 #print("checking :",Vgs," ",Vds)
-                
                 mos_ptr += 1
                 width = unit_symbol(components[mos_device[u]].args["w"])
                 length = unit_symbol(components[mos_device[u]].args["l"])
                 W_L = width / length
-                print(width," ",length," n",)
                 
                 # Cutoff
                 if Vgs < Vt:
@@ -1297,13 +1294,12 @@ def Dc_analysis(
             
             #print("maxi: ",max(vgs_diff)," ",max(vds_diff))
             #print(vgs_his," ",vds_his)
-            if ((len(x_0his) == 1 or (
+            if (len(x_0his) == 1 or (
                 max(x_0diff) >= 10 ** (-6) or abs(min(x_0diff)) >= 10 ** (-6)
-                or max(vgs_diff)>=0.01 or max(vds_diff)>=0.01
-            ) )and iti_time<=100) :
-                #if(iti_time<=10 ):
-                    #print(iti_time," ",vgs_his," ",vds_his)
-                #print(iti_time," ",vgs_his," ",vds_his)
+                or max(vgs_diff)>=0.001 or max(vds_diff)>=0.001
+            )) :
+                #if(iti_time<=10):
+                print(iti_time," ",max(vgs_diff)," ",max(vds_diff))
                 # print("length of x0",len(x_0))
                 # print("length of x0his",len(x_0his))
                 iti_time += 1
@@ -1336,7 +1332,6 @@ def Dc_analysis(
                         mos_ptr += 1
                         width = unit_symbol(components[mos_device[u]].args["w"])
                         length = unit_symbol(components[mos_device[u]].args["l"])
-                        print(width," ",length," p:iti")
                         #print(width," ",length," ",Vgs," ",Vds)
                         W_L = width / length
                         #print(vgs_his[u]," ",vgs_his[u])
@@ -1388,7 +1383,6 @@ def Dc_analysis(
                         mos_ptr += 1
                         width = unit_symbol(components[mos_device[u]].args["w"])
                         length = unit_symbol(components[mos_device[u]].args["l"])
-                        print(width," ",length," n:iti")
                         W_L = width / length
                         
                         # Cutoff
@@ -1632,17 +1626,14 @@ def Dc_analysis(
                                 
                     else:
                         if namelist[mos_device[u]][1] == "p":
-                            if(voltage==0):
-                                #print(X_list[-1])
-                                #print("chuewi ",X_list[-1][place3 - 1] - X_list[-1][place2 - 1])
-                                vds_his[u] = [
-                                    X_list[-1][place3 - 1] - X_list[-1][place1 - 1]
-                                    ,X_list[-1][place3 - 1] - X_list[-1][place1 - 1]
-                                    ]
-                                vgs_his[u] = [
-                                    X_list[-1][place3 - 1] - X_list[-1][place2 - 1],
-                                    X_list[-1][place3 - 1] - X_list[-1][place2 - 1]
-                                    ]
+                            vds_his[u] = [
+                                X_list[-1][place3 - 1] - X_list[-1][place1 - 1]
+                                ,X_list[-1][place3 - 1] - X_list[-1][place1 - 1]
+                                ]
+                            vgs_his[u] = [
+                                X_list[-1][place3 - 1] - X_list[-1][place2 - 1],
+                                X_list[-1][place3 - 1] - X_list[-1][place2 - 1]
+                                ]
                         else:
                             vds_his[u] = [
                                 X_list[-1][place1 - 1] - X_list[-1][place3 - 1],
@@ -1723,15 +1714,7 @@ def Dc_analysis(
             counter = counter + 1
         else:
             continue
-    path='toneg.txt'
-    f=open(path,"w")
-
-    for i in range(len(result)):
-        #print("pop")
-        string=str(x_axis[i])+" "+str(result[i][2])+"\n"
-        f.writelines(string)
-        #f.write("")
-    f.close() 
+        
     plot_picture_dc(templist, namelist, times, result, cmd, x_axis)
 
 

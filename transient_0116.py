@@ -3,6 +3,7 @@
 from utils import unit_symbol, plot_picture,plot_picture_trans
 from parse import parse
 from transientfunc_0201 import step_euler,BDF2
+#from dc_biasing import Dc_bias
 import numpy as np
 import sympy as sp
 from scipy import linalg
