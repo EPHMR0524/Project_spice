@@ -42,7 +42,7 @@ for i in range(len(templist)):
 element2=matrix_size
 #print(element2)
 #print(matrix_size)
-#接著計算第二類元素的部分
+#接著計算第二類元素的部分1
 for i in range(element):
     if(namelist[i][0]=="v"):
         matrix_size=matrix_size+1
