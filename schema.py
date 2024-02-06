@@ -1,3 +1,4 @@
+#from __future__ import annotations
 from pydantic import BaseModel, field_validator
 from utils import unit_symbol
 
