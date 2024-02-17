@@ -3,6 +3,7 @@
 from utils import unit_symbol, plot_picture,plot_picture_trans
 from parse import parse
 from transientfunc_0201 import step_euler,BDF2
+from dc_bias import Dc_bias
 #from dc_biasing import Dc_bias
 import numpy as np
 import sympy as sp
@@ -200,7 +201,25 @@ C_last=[]
 L_last=[]
 vgs_his=[]
 vds_his=[]
-
+object_source="non"
+nonlin_his,vds_his,vgs_his=Dc_bias(
+    templist,
+    element2,
+    element,
+    dic_node,
+    matrix_size,
+    cmd,
+    namelist,
+    nodelist,
+    circuit_name,
+    valuelist,
+    typelist,
+    components,
+    object_source,
+    vgs_his,
+    vds_his,
+    nonlin_his
+)
 while (t <= end_time):
     X=[]
     X_BDF=[]
@@ -282,7 +301,7 @@ while (t <= end_time):
             L_last.append(X[check_current[i]])
     #print("step: ",time_step)
     #time_step=new_time_step
-    print("progress: ",t/end_time*100,"%")
+    #print("progress: ",t/end_time*100,"%")
     if(t>0):
         i_max=0;
         for u in range(len(X_BDF)):

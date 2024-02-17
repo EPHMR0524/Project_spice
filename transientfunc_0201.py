@@ -815,6 +815,8 @@ def step_euler(
                 abs(min(non_diff))>10**(-6)
                 or max(vgs_diff)>10**(-6) or max(vds_diff)>10**(-6))
                and iti<=100):
+                if(iti==100):
+                    print("iti:　",iti," ",t)
                 ##print("iti:　",iti)
                 iti+=1
                 #生成Non線性元件矩陣A
@@ -1675,8 +1677,7 @@ def BDF2(L_pass,element1,nonlin_his,matrixA,vectorB,nodelist,C_pass,
                 or max(vgs_diff)>=10**(-6) or max(vds_diff)>=10**(-6))
                and iti<=100):
                 #
-                if(iti==100):
-                    print("iti:　",iti," ",t)
+                
                 iti+=1
                 #生成Non線性元件矩陣A
                 matrixA_Non=np.zeros((matrix_size,matrix_size),dtype=float)

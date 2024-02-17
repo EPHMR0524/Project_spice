@@ -6,413 +6,7 @@ import matplotlib.pyplot as plt
 import re
 from scipy import linalg
 
-
-def ac_analysis(
-    templist,
-    place,
-    element2,
-    element,
-    dic_node,
-    matrix_size,
-    cmd,
-    result,
-    namelist,
-    nodelist,
-    circuit_name,
-    valuelist,
-    typelist,
-    components,
-    dic_result,
-    freq_step,
-    start_freq,
-    end_freq,
-):
-    # =============================================================================
-    #     element=len(namelist)
-    #     templist=[]
-    #     #將nodelist中元素加入templist以方便後續計算node數
-    #     #templist:唯一暫存容器
-    #     for i in range(element):
-    #         for j in range(2):
-    #             templist.append(nodelist[i][j])
-    #     #刪除重複內容
-    #     #print(templist)
-    #     templist=list(dict.fromkeys(templist))
-    #     #print(templist)
-    #     #矩陣大小變數:matrix_size
-    #     matrix_size=0
-    #     #先算node構成的部分
-    #     for i in range(len(templist)):
-    #         if(templist[i]=="0"):
-    #             continue
-    #         elif(templist[i]!=""):
-    #             matrix_size=matrix_size+1
-    #         else:
-    #             continue
-    #     #設定一個變數用以儲存目前(僅包含第一類元件)的數量
-    #     element2=matrix_size
-    #     #print(element2)
-    #     #print(matrix_size)
-    #     #接著計算第二類元素的部分
-    #     for i in range(element):
-    #         if(namelist[i][0]=="v"):
-    #             matrix_size=matrix_size+1
-    #         elif(namelist[i][0]=="l"):
-    #             matrix_size=matrix_size+1
-    #         else:
-    #             continue
-    #     dic_node={}
-    #     #用來建立dic引數的一個變數:counter
-    #     counter=1
-    #     for i in range(len(templist)):
-    #         #nodename等於0就給dic的值為0
-    #         if(templist[i]=='0'):
-    #             dic_node["0"]=0
-    #         else:
-    #             temp_string=templist[i]
-    #             dic_node[temp_string]=counter
-    #             counter=counter+1
-    #     #print(dic_node)
-    # =============================================================================
-    # PARAMETER
-    Vd_MAX = 10
-    Vt = 0.4
-    W_L = 1 / 0.18
-    Lambda = 0.02  # 為1/VA
-    va_n = 1 / Lambda
-    va_p = 50
-    u_n = 600e-4  # ngspice預設(600cm^2/V sec)
-    t_ox = 10**-7  # ngspice預設
-    epsilon_0 = 8.854e-12  # 真空介電常數
-    epsilon_SiO2 = 3.9  # SiO2相對介電常數
-    C_ox = epsilon_0 * epsilon_SiO2 / t_ox
-    k_n = u_n * C_ox
-    if cmd[1] == "dec":
-        # 計算模擬次數(資料數量)
-        print("data row:", (np.log10(end_freq) - np.log10(start_freq)) * freq_step + 1)
-        step = (np.log10(end_freq) - np.log10(start_freq)) * freq_step
-        j = np.log10(start_freq)
-        end = np.log10(end_freq)
-        times = 0
-        x = []
-    elif cmd[1] == "lin":
-        # 計算模擬次數(資料數量)
-        print("data row:", cmd[2])
-        step = freq_step
-        j = start_freq
-        end = end_freq
-        times = 0
-        x = []
-    elif cmd[1] == "oct":
-        # 計算模擬次數(資料數量)
-        print(
-            "data row:",
-            (np.log10(end_freq) / np.log10(8) - np.log10(start_freq) / np.log10(8))
-            * freq_step
-            + 1,
-        )
-        step = (
-            np.log10(end_freq) / np.log10(8) - np.log10(start_freq) / np.log10(8)
-        ) * freq_step
-        j = np.log10(start_freq) / np.log10(8)
-        end = np.log10(end_freq) / np.log10(8)
-        times = 0
-        x = []
-        examine_A = []
-    else:
-        print("指令無效")
-
-    # 生成矩陣A
-    matrixA = [[0 for i in range(matrix_size)] for j in range(matrix_size)]
-    # 生成向量B
-    vectorB = [0 for i in range(matrix_size)]
-    print("open circiut:", circuit_name)
-    pi = np.pi
-    result_inf = []
-    # 計算模擬次數(資料數量)
-    examine_A = []
-    j_array = []
-    while j <= end:
-        j_array.append(j)
-        # 生成矩陣A
-        matrixA = np.zeros((matrix_size, matrix_size), dtype=complex)
-        # 生成向量B
-        vectorB = np.zeros(matrix_size)
-        temp = element2
-        for i in range(element):
-            # 填入電阻的stamp
-            # 填入矩陣A的部分
-            if namelist[i][0] == "r":
-                # 用兩個str容器裝nodename
-                str1 = nodelist[i][0]
-                str2 = nodelist[i][1]
-                # 用place去找dic中nodename對應值
-                place1 = dic_node[str1]
-                place2 = dic_node[str2]
-                value = components[i].value
-                if str1 == "0":
-                    matrixA[place2 - 1][place2 - 1] += 1 / value
-                elif str2 == "0":
-                    matrixA[place1 - 1][place1 - 1] += 1 / value
-                else:
-                    matrixA[place1 - 1][place1 - 1] += 1 / value
-                    matrixA[place1 - 1][place2 - 1] -= 1 / value
-                    matrixA[place2 - 1][place1 - 1] -= 1 / value
-                    matrixA[place2 - 1][place2 - 1] += 1 / value
-            # 填入電容的stamp
-            # 填入矩陣A的部分
-            elif namelist[i][0] == "c":
-                # 用兩個str容器裝nodename
-                str1 = nodelist[i][0]
-                str2 = nodelist[i][1]
-                # 用place去找dic中nodename對應值
-                place1 = dic_node[str1]
-                place2 = dic_node[str2]
-                value = components[i].value
-                if cmd[1] == "dec":
-                    if str1 == "0":
-                        matrixA[place2 - 1][place2 - 1] += (
-                            value * 1j * pi * 2 * (10**j)
-                        )
-                    elif str2 == "0":
-                        matrixA[place1 - 1][place1 - 1] += (
-                            value * 1j * pi * 2 * (10**j)
-                        )
-                    else:
-                        matrixA[place1 - 1][place1 - 1] += (
-                            value * 1j * pi * 2 * (10**j)
-                        )
-                        matrixA[place1 - 1][place2 - 1] -= (
-                            value * 1j * pi * 2 * (10**j)
-                        )
-                        matrixA[place2 - 1][place1 - 1] -= (
-                            value * 1j * pi * 2 * (10**j)
-                        )
-                        matrixA[place2 - 1][place2 - 1] += (
-                            value * 1j * pi * 2 * (10**j)
-                        )
-                elif cmd[1] == "lin":
-                    if str1 == "0":
-                        matrixA[place2 - 1][place2 - 1] += value * 1j * pi * 2 * (j)
-                    elif str2 == "0":
-                        matrixA[place1 - 1][place1 - 1] += value * 1j * pi * 2 * (j)
-                    else:
-                        matrixA[place1 - 1][place1 - 1] += value * 1j * pi * 2 * (j)
-                        matrixA[place1 - 1][place2 - 1] -= value * 1j * pi * 2 * (j)
-                        matrixA[place2 - 1][place1 - 1] -= value * 1j * pi * 2 * (j)
-                        matrixA[place2 - 1][place2 - 1] += value * 1j * pi * 2 * (j)
-                else:  # oct
-                    if str1 == "0":
-                        matrixA[place2 - 1][place2 - 1] += (
-                            value * 1j * pi * 2 * (8**j)
-                        )
-                    elif str2 == "0":
-                        matrixA[place1 - 1][place1 - 1] += (
-                            value * 1j * pi * 2 * (8**j)
-                        )
-                    else:
-                        matrixA[place1 - 1][place1 - 1] += (
-                            value * 1j * pi * 2 * (8**j)
-                        )
-                        matrixA[place1 - 1][place2 - 1] -= (
-                            value * 1j * pi * 2 * (8**j)
-                        )
-                        matrixA[place2 - 1][place1 - 1] -= (
-                            value * 1j * pi * 2 * (8**j)
-                        )
-                        matrixA[place2 - 1][place2 - 1] += (
-                            value * 1j * pi * 2 * (8**j)
-                        )
-            # 填入電流源的stamp
-            # 無須填入矩陣A的部分
-            # 僅填入vectorB
-            elif namelist[i][0] == "i":
-                # 用兩個str容器裝nodename
-                str1 = nodelist[i][0]
-                str2 = nodelist[i][1]
-                # 用place去找dic中nodename對應值
-                place1 = dic_node[str1]
-                place2 = dic_node[str2]
-                value = components[i].ac
-                if components[i].ac != 0:
-                    if str1 == "0":
-                        vectorB[place2 - 1] += value
-                    elif str2 == "0":
-                        vectorB[place1 - 1] -= value
-                    else:
-                        vectorB[place2 - 1] += value
-                        vectorB[place1 - 1] -= value
-                else:
-                    if str1 == "0":
-                        vectorB[place2 - 1] += 0
-                    elif str2 == "0":
-                        vectorB[place1 - 1] -= 0
-                    else:
-                        vectorB[place2 - 1] += 0
-                        vectorB[place1 - 1] -= 0
-            # 填入電壓源的stamp
-            # 須填入矩陣A的部分
-            # 同時填入vectorB
-            elif namelist[i][0] == "v":
-                element2 = element2 + 1  # 作為一個指標用來定出元件所放置的位置
-                # rint(element2)
-                # 用兩個str容器裝nodename
-                str1 = nodelist[i][0]
-                str2 = nodelist[i][1]
-                # 用place去找dic中nodename對應值
-                place1 = dic_node[str1]
-                place2 = dic_node[str2]
-                value = components[i].ac
-                # 填入vectorB
-                if components[i].ac != 0:
-                    vectorB[element2 - 1] += value
-                else:
-                    vectorB[element2 - 1] += 0
-                # 填入matrixA
-                if str1 == "0":
-                    matrixA[element2 - 1][place2 - 1] -= 1
-                    matrixA[place2 - 1][element2 - 1] -= 1
-                elif str2 == "0":
-                    matrixA[element2 - 1][place1 - 1] += 1
-                    matrixA[place1 - 1][element2 - 1] += 1
-                else:
-                    matrixA[element2 - 1][place1 - 1] += 1
-                    matrixA[element2 - 1][place2 - 1] -= 1
-                    matrixA[place1 - 1][element2 - 1] += 1
-                    matrixA[place2 - 1][element2 - 1] -= 1
-            # 填入電感的stamp
-            # 須填入矩陣A的部分
-            # 無須填入vectorB
-            elif namelist[i][0] == "l":
-                element2 = element2 + 1  # 作為一個指標用來定出元件所放置的位置
-                # 用兩個str容器裝nodename
-                str1 = nodelist[i][0]
-                str2 = nodelist[i][1]
-                # 用place去找dic中nodename對應值
-                place1 = dic_node[str1]
-                place2 = dic_node[str2]
-                value = components[i].value
-                # 填入matrixA
-                if cmd[1] == "dec":
-                    if str1 == "0":
-                        matrixA[element2 - 1][place2 - 1] -= 1
-                        matrixA[place2 - 1][element2 - 1] -= 1
-                        matrixA[element2 - 1][element2 - 1] -= (
-                            value * 1j * pi * 2 * (10**j)
-                        )
-                    elif str2 == "0":
-                        matrixA[element2 - 1][place1 - 1] += 1
-                        matrixA[place1 - 1][element2 - 1] += 1
-                        matrixA[element2 - 1][element2 - 1] -= (
-                            value * 1j * pi * 2 * (10**j)
-                        )
-                    else:
-                        matrixA[element2 - 1][place1 - 1] += 1
-                        matrixA[element2 - 1][place2 - 1] -= 1
-                        matrixA[place1 - 1][element2 - 1] += 1
-                        matrixA[place2 - 1][element2 - 1] -= 1
-                        matrixA[element2 - 1][element2 - 1] -= (
-                            value * 1j * pi * 2 * (10**j)
-                        )
-                elif cmd[1] == "lin":
-                    if str1 == "0":
-                        matrixA[element2 - 1][place2 - 1] -= 1
-                        matrixA[place2 - 1][element2 - 1] -= 1
-                        matrixA[element2 - 1][element2 - 1] -= value * 1j * pi * 2 * (j)
-                    elif str2 == "0":
-                        matrixA[element2 - 1][place1 - 1] += 1
-                        matrixA[place1 - 1][element2 - 1] += 1
-                        matrixA[element2 - 1][element2 - 1] -= value * 1j * pi * 2 * (j)
-                    else:
-                        matrixA[element2 - 1][place1 - 1] += 1
-                        matrixA[element2 - 1][place2 - 1] -= 1
-                        matrixA[place1 - 1][element2 - 1] += 1
-                        matrixA[place2 - 1][element2 - 1] -= 1
-                        matrixA[element2 - 1][element2 - 1] -= value * 1j * pi * 2 * (j)
-                else:  # oct
-                    if str1 == "0":
-                        matrixA[element2 - 1][place2 - 1] -= 1
-                        matrixA[place2 - 1][element2 - 1] -= 1
-                        matrixA[element2 - 1][element2 - 1] -= (
-                            value * 1j * pi * 2 * (8**j)
-                        )
-                    elif str2 == "0":
-                        matrixA[element2 - 1][place1 - 1] += 1
-                        matrixA[place1 - 1][element2 - 1] += 1
-                        matrixA[element2 - 1][element2 - 1] -= (
-                            value * 1j * pi * 2 * (8**j)
-                        )
-                    else:
-                        matrixA[element2 - 1][place1 - 1] += 1
-                        matrixA[element2 - 1][place2 - 1] -= 1
-                        matrixA[place1 - 1][element2 - 1] += 1
-                        matrixA[place2 - 1][element2 - 1] -= 1
-                        matrixA[element2 - 1][element2 - 1] -= (
-                            value * 1j * pi * 2 * (8**j)
-                        )
-            else:
-                continue
-
-        # A=np.array(matrixA)
-        # A=linalg.inv(A)
-        # LU解法==========================================
-        A = np.array(matrixA, dtype=complex)
-        P, L, U = linalg.lu(A)
-        # print(L)
-        # print(U)
-        B = np.array(vectorB)
-        Y = linalg.solve_triangular(L, P.T @ B, lower=True)
-        X = linalg.solve_triangular(U, Y, lower=False)
-        # ===============================================
-        # 將矩陣及向量清空
-        matrixA = np.zeros((matrix_size, matrix_size), dtype=complex)
-        vectorB = np.zeros(matrix_size)
-        if cmd[1] == "dec":
-            x.append(10**j)
-            j += (np.log10(end_freq) - np.log10(start_freq)) / step
-        elif cmd[1] == "lin":
-            x.append(j)
-            j += ((end_freq) - (start_freq)) / step
-        else:  # oct
-            x.append(8**j)
-            j += (
-                np.log10(end_freq) / np.log10(8) - np.log10(start_freq) / np.log10(8)
-            ) / step
-        element2 = temp
-        # 畫圖用的x矩陣加入當下頻率值
-        times += 1
-        # 解的矩陣:result
-        result.append(X)
-    place = x
-    dic_result_inf = {}
-    counter = 1
-    for i in range(len(templist)):
-        if templist[i] == "0":
-            dic_result_inf["GND"] = 0
-            # counter=counter+1
-            # continue
-        else:
-            dic_result_inf["v(" + templist[i] + ")"] = counter
-            counter = counter + 1
-        continue
-    for i in range(len(namelist)):
-        if namelist[i][0] == "v":
-            dic_result_inf["i(" + namelist[i] + ")"] = counter
-            counter = counter + 1
-        elif namelist[i][0] == "l":
-            dic_result_inf["i(" + namelist[i] + ")"] = counter
-            counter = counter + 1
-        else:
-            continue
-    dic_result = dic_result_inf
-    # print(len(dic_result_inf))
-    print(j_array)
-    print(len(result))
-    print(x[0], x[-1])
-    plot_picture(templist, namelist, times, result, cmd, x)
-
-
-def Dc_analysis(
+def Dc_bias(
     templist,
     element2,
     element,
@@ -425,10 +19,10 @@ def Dc_analysis(
     valuelist,
     typelist,
     components,
-    V_step,
-    start_V,
-    end_V,
     object_source,
+    vgs_his,
+    vds_his,
+    x_0
 ):
     # PARAMETER
     Vt = 0.4
@@ -454,7 +48,6 @@ def Dc_analysis(
     vectorB = np.zeros(matrix_size)
     vectorB_nonlin = np.zeros(matrix_size)
     
-    voltage = start_V
     x_axis = []
     x_0 = []
     x_0his = []
@@ -464,12 +57,12 @@ def Dc_analysis(
     diode_number = 0
     # mos_ptr=0
     times = 0
-    
+    partial=0
     firstTime = True
     first_print_maxtrix = True
-    vds_his = []
-    vgs_his = []
-    while voltage != end_V :
+    while  partial <100:
+        partial+=1
+        print(partial)
         vectorB_mos = np.zeros(matrix_size)
         matrixA_mos = np.zeros((matrix_size, matrix_size))
         iti_time = 0
@@ -521,20 +114,20 @@ def Dc_analysis(
                 if components[i].dc != 0:
                     if namelist[i] != object_source:
                         if str1 == "0":
-                            vectorB[place2 - 1] += value
+                            vectorB[place2 - 1] += value*partial/100
                         elif str2 == "0":
-                            vectorB[place1 - 1] -= value
+                            vectorB[place1 - 1] -= value*partial/100
                         else:
-                            vectorB[place2 - 1] += value
-                            vectorB[place1 - 1] -= value
+                            vectorB[place2 - 1] += value*partial/100
+                            vectorB[place1 - 1] -= value*partial/100
                     else:
                         if str1 == "0":
-                            vectorB[place2 - 1] += voltage
+                            vectorB[place2 - 1] += 0
                         elif str2 == "0":
-                            vectorB[place1 - 1] -= voltage
+                            vectorB[place1 - 1] -= 0
                         else:
-                            vectorB[place2 - 1] += voltage
-                            vectorB[place1 - 1] -= voltage
+                            vectorB[place2 - 1] += 0
+                            vectorB[place1 - 1] -= 0
                 else:
                     if str1 == "0":
                         vectorB[place2 - 1] += 0
@@ -559,11 +152,11 @@ def Dc_analysis(
                 # 填入vectorB
                 if components[i].dc != 0:
                     if namelist[i] != object_source:
-                        vectorB[element2 - 1] += value
+                        vectorB[element2 - 1] += value*partial/100
                     else:
-                        vectorB[element2 - 1] += voltage
+                        vectorB[element2 - 1] += 0
                 elif namelist[i] == object_source:
-                    vectorB[element2 - 1] += voltage
+                    vectorB[element2 - 1] += 0
                 else:
                     vectorB[element2 - 1] += 0
                 # 填入matrixA
@@ -612,11 +205,11 @@ def Dc_analysis(
                 # 用place去找dic中nodename對應值
                 place1 = dic_node[str1]
                 place2 = dic_node[str2]
-                if voltage == start_V:
+                if partial == 1:
                     if (place1 - place2) <= 0:
-                        x_0.append(-start_V)
+                        x_0.append(0)
                     else:
-                        x_0.append(start_V)
+                        x_0.append(0)
                 else:
                     pass
                 tempa = (
@@ -693,7 +286,7 @@ def Dc_analysis(
             place4 = dic_node[mos_node[u][3]]  # voltage==start_V
             #print(mos_node[u][0]," ",mos_node[u][1]," ",mos_node[u][2]," ",mos_node[u][3])
             # 計算初值firstTime == 
-            if  voltage == start_V and len(vgs_his)!=len(mos_node):
+            if  partial==1:
                 matrixA_mask=np.zeros((matrix_size, matrix_size))
                 for k in range(element2):
                     matrixA_mask[k][k]+=10**-9
@@ -841,6 +434,7 @@ def Dc_analysis(
 #                 Vgs = vgs_his[u]
 #                 Vds = vds_his[u]
 # =============================================================================
+                #print(vgs_his)
                 Vgs = vgs_his[u][-1]
                 Vds = vds_his[u][-1]
                 #print(vgs_his," ",vds_his)
@@ -1065,6 +659,9 @@ def Dc_analysis(
             #             for column in range(len(vectorB)):
             #                 matrixA_mix[row][column]=matrixA[row][column]+matrixA_nonlin[row][column]
             # =============================================================================
+            matrixA_mask=np.zeros((matrix_size, matrix_size))
+            for k in range(element2):
+                matrixA_mask[k][k]+=10**-9
             matrixA_mix = matrixA + matrixA_nonlin+matrixA_mos+matrixA_mask
             vectorB_mix = vectorB + vectorB_nonlin+vectorB_mos
             #print("MA:",matrixA_mix)
@@ -1078,6 +675,7 @@ def Dc_analysis(
             # print(vectorB_nonlin)
             # 解線性系統
             A = np.array(matrixA_mix)
+            #print("A: ",A)
             # print(A)
             P, L, U = linalg.lu(A)
             # print(L)
@@ -1300,8 +898,8 @@ def Dc_analysis(
                 max(x_0diff) >= 10 ** (-6) or abs(min(x_0diff)) >= 10 ** (-6)
                 or max(vgs_diff)>=0.00001 or max(vds_diff)>=0.00001
             )) :
-                #if(iti_time<=10):
-                #print(iti_time," ",max(vgs_diff)," ",max(vds_diff))
+                if(iti_time<=10):
+                    print(iti_time," vgs: ",(vgs_his)," vds: ",(vds_his))
                 # print("length of x0",len(x_0))
                 # print("length of x0his",len(x_0his))
                 iti_time += 1
@@ -1339,8 +937,7 @@ def Dc_analysis(
                         #print(vgs_his[u]," ",vgs_his[u])
                         # Cutoff
                         if Vgs < Vt:
-                            if(voltage>= 1 and voltage<=1.25):
-                                print("cutoff_p",Vgs," ",Vds," ",voltage," ",namelist[mos_device[u]])
+                            
                         
                             a12 = 0
                             a11 = sp.exp((Vgs - Vt) / 0.0258528413 - 32.2361913) / 0.0258528413
@@ -1348,8 +945,7 @@ def Dc_analysis(
                         
                         # Triode
                         elif (Vgs - Vt) >= Vds:
-                            if(voltage>= 1 and voltage<=1.25):
-                                print("triode_p",Vgs," ",Vds," ",voltage," ",namelist[mos_device[u]])
+                            
                             a11 = W_L * k_p * Vds
                             a12 = W_L * k_p * ((Vgs - Vt) - Vds)
                             b1 = -(
@@ -1360,8 +956,7 @@ def Dc_analysis(
 
                         # Sat
                         elif (Vgs - Vt) < Vds:
-                            if(voltage>= 1 and voltage<=1.25):
-                                print("sat_p",Vgs," ",Vds," ",voltage," ",namelist[mos_device[u]])
+                            
                             a11 = (
                                 (1 / 2)
                                 * W_L
@@ -1675,14 +1270,13 @@ def Dc_analysis(
         # vds_his = []
         matrixA = np.zeros((matrix_size, matrix_size))
         vectorB = np.zeros(matrix_size)
-        x_axis.append(voltage)
+
         # print("voltage:",voltage)
         # print(result)
         # print(-result[-1][-1])
         iti_list.append(iti_time)
         
-        voltage += V_step
-        voltage = round(voltage, 6)  # modify
+
         
         X_list = []
         element2 = temp12
@@ -1693,34 +1287,7 @@ def Dc_analysis(
         times += 1
         
         
-    dic_result = {}
-    counter = 1
-    iti_count = 0
-    
-    for i in range(len(iti_list)):
-        iti_count += iti_list[i]
-    
-    for i in range(len(templist)):
-        if templist[i] == "0":
-            dic_result["gnd"] = 0
-            # counter=counter+1
-            # continue
-        else:
-            dic_result["v(" + templist[i] + ")"] = counter
-            counter = counter + 1
-        continue
-    
-    for i in range(len(namelist)):
-        if namelist[i][0] == "v":
-            dic_result["i(" + namelist[i] + ")"] = counter
-            counter = counter + 1
-        elif namelist[i][0] == "l":
-            dic_result["i(" + namelist[i] + ")"] = counter
-            counter = counter + 1
-        else:
-            continue
-        
-    plot_picture_dc(templist, namelist, times, result, cmd, x_axis)
+    return x_0,vds_his,vgs_his
 
 
 # def tran_analysis(templist,element2,element,dic_node,matrix_size,cmd,namelist,nodelist,circuit_name,valuelist,typelist,components,V_step,start_V,end_V,object_source):

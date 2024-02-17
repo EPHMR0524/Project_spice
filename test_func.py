@@ -18,7 +18,7 @@ if __name__ == "__main__":#當此在主程式可用
     valuelist = [c.value for c in components]
 element=len(namelist)
 templist=[]
-print(components)
+#print(components)
 #將nodelist中元素加入templist以方便後續計算node數
 #templist:唯一暫存容器
 for i in range(element):
