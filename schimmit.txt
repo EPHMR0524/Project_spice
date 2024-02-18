@@ -9,5 +9,5 @@ C1 output 0 1f
 VVDD VDD 0 dc 1.8
 Vg input 0 SIN 0 1.8 50
 *Vg input 0 dc 0
-VS VSS 0 dc 0
+VS VSS 0 dc -1.5
 .end

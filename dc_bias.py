@@ -60,7 +60,7 @@ def Dc_bias(
     partial=-1
     firstTime = True
     first_print_maxtrix = True
-    while  partial <1000:
+    while  partial <=1000:
         partial+=1
         print(partial/1000*100)
         vectorB_mos = np.zeros(matrix_size)
@@ -152,7 +152,7 @@ def Dc_bias(
                 # 填入vectorB
                 if components[i].dc != 0:
                     if namelist[i] != object_source:
-                        vectorB[element2 - 1] += value*partial/1000
+                        vectorB[element2 - 1] += value*(partial/1000)
                     else:
                         vectorB[element2 - 1] += 0
                 elif namelist[i] == object_source:

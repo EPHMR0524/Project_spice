@@ -408,7 +408,7 @@ def step_euler(
                         b1 = -(a11 * 0.0258528413 - a11 * (Vgs))
                     
                     # Triode
-                    elif (Vgs - Vt) >= Vds:
+                    elif (Vgs - Vt) > Vds:
                         ##print("triode_p",Vgs," ",Vds)
                         a11 = W_L * k_p * Vds
                         a12 = W_L * k_p * ((Vgs - Vt) - Vds)
@@ -419,7 +419,7 @@ def step_euler(
                         )
 
                     # Sat
-                    elif (Vgs - Vt) < Vds:
+                    elif (Vgs - Vt) <= Vds:
                         ##print("sat_p",Vgs," ",Vds)
                         a11 = (
                             (1 / 2)
@@ -460,7 +460,7 @@ def step_euler(
                         b1 = a11 * 0.0258528413 - a11 * (Vgs)
                     
                     # Triode
-                    elif (Vgs - Vt) >= Vds:
+                    elif (Vgs - Vt) > Vds:
                         ##print("triode")
                         a11 = W_L * k_n * Vds
                         a12 = W_L * k_n * ((Vgs - Vt) - Vds)
@@ -471,7 +471,7 @@ def step_euler(
                         )
                     
                     # Sat
-                    elif (Vgs - Vt) < Vds:
+                    elif (Vgs - Vt) <= Vds:
                         ##print("sat")
                         a11 = (
                             (1 / 2)
@@ -1268,7 +1268,7 @@ def BDF2(L_pass,element1,nonlin_his,matrixA,vectorB,nodelist,C_pass,
                         b1 = -(a11 * 0.0258528413 - a11 * (Vgs))
                     
                     # Triode
-                    elif (Vgs - Vt) >= Vds:
+                    elif (Vgs - Vt) > Vds:
                         ##print("triode_p",Vgs," ",Vds)
                         a11 = W_L * k_p * Vds
                         a12 = W_L * k_p * ((Vgs - Vt) - Vds)
@@ -1279,7 +1279,7 @@ def BDF2(L_pass,element1,nonlin_his,matrixA,vectorB,nodelist,C_pass,
                         )
 
                     # Sat
-                    elif (Vgs - Vt) < Vds:
+                    elif (Vgs - Vt) <= Vds:
                         ##print("sat_p",Vgs," ",Vds)
                         a11 = (
                             (1 / 2)
@@ -1320,7 +1320,7 @@ def BDF2(L_pass,element1,nonlin_his,matrixA,vectorB,nodelist,C_pass,
                         b1 = a11 * 0.0258528413 - a11 * (Vgs)
                     
                     # Triode
-                    elif (Vgs - Vt) >= Vds:
+                    elif (Vgs - Vt) > Vds:
                         ##print("triode")
                         a11 = W_L * k_n * Vds
                         a12 = W_L * k_n * ((Vgs - Vt) - Vds)
@@ -1331,7 +1331,7 @@ def BDF2(L_pass,element1,nonlin_his,matrixA,vectorB,nodelist,C_pass,
                         )
                     
                     # Sat
-                    elif (Vgs - Vt) < Vds:
+                    elif (Vgs - Vt) <= Vds:
                         ##print("sat")
                         a11 = (
                             (1 / 2)
