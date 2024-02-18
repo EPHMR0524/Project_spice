@@ -1,3 +1,4 @@
+#被我改過了喔
 #transient functions
 from utils import unit_symbol, plot_picture,plot_picture_trans,plot_picture_dc
 import sympy as sp
@@ -1099,7 +1100,7 @@ def BDF2(L_pass,element1,nonlin_his,matrixA,vectorB,nodelist,C_pass,
                     matrixA_Non[place1-1][place2-1]-=tempa
                     matrixA_Non[place2-1][place1-1]-=tempa
                     matrixA_Non[place2-1][place2-1]+=tempa
-                #填入vectorB aaa
+                #填入vectorB
                 if(str1=="0"):
                     vectorB_Non[place2-1]+=tempb
                 elif(str2=="0"):
