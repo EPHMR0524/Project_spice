@@ -57,12 +57,12 @@ def Dc_bias(
     diode_number = 0
     # mos_ptr=0
     times = 0
-    partial=0
+    partial=-1
     firstTime = True
     first_print_maxtrix = True
-    while  partial <100:
+    while  partial <1000:
         partial+=1
-        print(partial)
+        print(partial/1000*100)
         vectorB_mos = np.zeros(matrix_size)
         matrixA_mos = np.zeros((matrix_size, matrix_size))
         iti_time = 0
@@ -114,12 +114,12 @@ def Dc_bias(
                 if components[i].dc != 0:
                     if namelist[i] != object_source:
                         if str1 == "0":
-                            vectorB[place2 - 1] += value*partial/100
+                            vectorB[place2 - 1] += value*partial/1000
                         elif str2 == "0":
-                            vectorB[place1 - 1] -= value*partial/100
+                            vectorB[place1 - 1] -= value*partial/1000
                         else:
-                            vectorB[place2 - 1] += value*partial/100
-                            vectorB[place1 - 1] -= value*partial/100
+                            vectorB[place2 - 1] += value*partial/1000
+                            vectorB[place1 - 1] -= value*partial/1000
                     else:
                         if str1 == "0":
                             vectorB[place2 - 1] += 0
@@ -152,7 +152,7 @@ def Dc_bias(
                 # 填入vectorB
                 if components[i].dc != 0:
                     if namelist[i] != object_source:
-                        vectorB[element2 - 1] += value*partial/100
+                        vectorB[element2 - 1] += value*partial/1000
                     else:
                         vectorB[element2 - 1] += 0
                 elif namelist[i] == object_source:
@@ -205,7 +205,7 @@ def Dc_bias(
                 # 用place去找dic中nodename對應值
                 place1 = dic_node[str1]
                 place2 = dic_node[str2]
-                if partial == 1:
+                if partial == 0:
                     if (place1 - place2) <= 0:
                         x_0.append(0)
                     else:
@@ -286,7 +286,7 @@ def Dc_bias(
             place4 = dic_node[mos_node[u][3]]  # voltage==start_V
             #print(mos_node[u][0]," ",mos_node[u][1]," ",mos_node[u][2]," ",mos_node[u][3])
             # 計算初值firstTime == 
-            if  partial==1:
+            if  partial==0:
                 matrixA_mask=np.zeros((matrix_size, matrix_size))
                 for k in range(element2):
                     matrixA_mask[k][k]+=10**-9
@@ -894,12 +894,11 @@ def Dc_bias(
             
             #print("maxi: ",max(vgs_diff)," ",max(vds_diff))
             #print(vgs_his," ",vds_his)
-            if (len(x_0his) == 1 or (
+            if ((len(x_0his) == 1 or (
                 max(x_0diff) >= 10 ** (-6) or abs(min(x_0diff)) >= 10 ** (-6)
-                or max(vgs_diff)>=0.00001 or max(vds_diff)>=0.00001
+                or max(vgs_diff)>=0.00001 or max(vds_diff)>=0.00001) and iti_time<100
             )) :
-                if(iti_time<=10):
-                    print(iti_time," vgs: ",(vgs_his)," vds: ",(vds_his))
+                
                 # print("length of x0",len(x_0))
                 # print("length of x0his",len(x_0his))
                 iti_time += 1
@@ -1286,7 +1285,7 @@ def Dc_bias(
         x_0_list.append(x_0)
         times += 1
         
-        
+    print(result[-1])
     return x_0,vds_his,vgs_his
 
 

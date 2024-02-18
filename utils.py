@@ -199,6 +199,7 @@ def plot_picture_trans(templist,namelist,result,cmd,x):
         plt.plot(x,y)
         if(operator==" "):
             plt.plot(x,z)
+        plt.grid()
         plt.show()
         Continue=input("Continue or not, 1 for continue, 0 for end. ")
         while(Continue!="1" and Continue!="0"):
@@ -294,7 +295,7 @@ def plot_picture_dc(templist,namelist,times,result,cmd,x):
         plt.plot(x,y)
         if(operator==" "):
             plt.plot(x,z)
-        
+        plt.grid()
         plt.show()
         Continue=input("Continue or not, 1 for continue, 0 for end. ")
         while(Continue!="1" and Continue!="0"):

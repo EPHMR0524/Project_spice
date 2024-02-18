@@ -220,6 +220,7 @@ nonlin_his,vds_his,vgs_his=Dc_bias(
     vds_his,
     nonlin_his
 )
+print(vds_his,vgs_his)
 while (t <= end_time):
     X=[]
     X_BDF=[]
