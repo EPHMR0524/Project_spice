@@ -1099,7 +1099,7 @@ def BDF2(L_pass,element1,nonlin_his,matrixA,vectorB,nodelist,C_pass,
                     matrixA_Non[place1-1][place2-1]-=tempa
                     matrixA_Non[place2-1][place1-1]-=tempa
                     matrixA_Non[place2-1][place2-1]+=tempa
-                #填入vectorB
+                #填入vectorB aaa
                 if(str1=="0"):
                     vectorB_Non[place2-1]+=tempb
                 elif(str2=="0"):
