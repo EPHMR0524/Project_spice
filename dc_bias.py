@@ -60,9 +60,9 @@ def Dc_bias(
     partial=-1
     firstTime = True
     first_print_maxtrix = True
-    while  partial <=1000:
+    while  partial <100:
         partial+=1
-        print(partial/1000*100)
+        print(partial/100*100)
         vectorB_mos = np.zeros(matrix_size)
         matrixA_mos = np.zeros((matrix_size, matrix_size))
         iti_time = 0
@@ -114,12 +114,12 @@ def Dc_bias(
                 if components[i].dc != 0:
                     if namelist[i] != object_source:
                         if str1 == "0":
-                            vectorB[place2 - 1] += value*partial/1000
+                            vectorB[place2 - 1] += value*partial/100
                         elif str2 == "0":
-                            vectorB[place1 - 1] -= value*partial/1000
+                            vectorB[place1 - 1] -= value*partial/100
                         else:
-                            vectorB[place2 - 1] += value*partial/1000
-                            vectorB[place1 - 1] -= value*partial/1000
+                            vectorB[place2 - 1] += value*partial/100
+                            vectorB[place1 - 1] -= value*partial/100
                     else:
                         if str1 == "0":
                             vectorB[place2 - 1] += 0
@@ -152,7 +152,7 @@ def Dc_bias(
                 # 填入vectorB
                 if components[i].dc != 0:
                     if namelist[i] != object_source:
-                        vectorB[element2 - 1] += value*(partial/1000)
+                        vectorB[element2 - 1] += value*(partial/100)
                     else:
                         vectorB[element2 - 1] += 0
                 elif namelist[i] == object_source:
@@ -280,13 +280,14 @@ def Dc_bias(
         for u in range(len(mos_node)):
             # 紀錄mos的各節點
             # mos_node.append([D,G,S,B])
+
             place1 = dic_node[mos_node[u][0]]
             place2 = dic_node[mos_node[u][1]]
             place3 = dic_node[mos_node[u][2]]
-            place4 = dic_node[mos_node[u][3]]  # voltage==start_V
+            place4 = dic_node[mos_node[u][3]]  #voltage==start_V
             #print(mos_node[u][0]," ",mos_node[u][1]," ",mos_node[u][2]," ",mos_node[u][3])
             # 計算初值firstTime == 
-            if  partial==0:
+            if  partial == 0  :
                 matrixA_mask=np.zeros((matrix_size, matrix_size))
                 for k in range(element2):
                     matrixA_mask[k][k]+=10**-9
@@ -300,16 +301,16 @@ def Dc_bias(
                 # print(U)
                 B = np.array(vectorB_check)
                 Y = linalg.solve_triangular(L, P.T @ B, lower=True)
-                
+                D = mos_node[u][0]
+                G = mos_node[u][1]
+                S = mos_node[u][2]
+                B = mos_node[u][3]
+                print(u," G: ",G,"D: ",D,"S: ",S)
                 vector_check = linalg.solve_triangular(U, Y, lower=False)
                 #print("firstTime_A:", A)
                 #print("firstTime_B:", B)
                 #print(dic_node)
                 #print("vector_check(first_X): ", vector_check)
-                D = mos_node[u][0]
-                G = mos_node[u][1]
-                S = mos_node[u][2]
-                B = mos_node[u][3]
                 # mos_cnt+=1;
                 if D == "0" and G == "0" and S == "0":
                     pass
@@ -422,6 +423,11 @@ def Dc_bias(
             
             else:
                 #firstTime = True
+                D = mos_node[u][0]
+                G = mos_node[u][1]
+                S = mos_node[u][2]
+                B = mos_node[u][3]
+                #print(u," G: ",G,"D: ",D,"S: ",S)
                 pass
             
             
@@ -429,6 +435,7 @@ def Dc_bias(
             a12 = 0
             b1 = 0
 
+            #print(u," G: ",G,"D: ",D,"S: ",S)
             if namelist[mos_device[u]][1] == "p":
 # =============================================================================
 #                 Vgs = vgs_his[u]
@@ -540,6 +547,7 @@ def Dc_bias(
                 
                 pass
             elif D == "0":
+                #print(place1," ",place2," ",place3," ")
                 if G == "0" and S != "0":
                     matrixA_mos[place3 - 1][place3 - 1] += a11 + a12
                     vectorB_mos[place3 - 1] += b1
@@ -554,20 +562,22 @@ def Dc_bias(
                     matrixA_mos[place3 - 1][place3 - 1] += a11 + a12
                     vectorB_mos[place3 - 1] += b1
             elif G == "0":
+                #print(place1," ",place2," ",place3," ")
                 if D == "0" and S != "0":
                     matrixA_mos[place3 - 1][place3 - 1] += a11 + a12
                     vectorB_mos[place3 - 1] += b1
                 elif S == "0" and D != "0":
-                    matrixA_mos[place1 - 1][place2 - 1] += a11
+                    matrixA_mos[place1 - 1][place1 - 1] += a12
                     vectorB_mos[place1 - 1] -= b1
                 elif S != "0" and D != "0":
-                    matrixA_mos[place1 - 1][place2 - 1] += a11
+                    matrixA_mos[place1 - 1][place1 - 1] += a12
                     matrixA_mos[place1 - 1][place3 - 1] -= a11 + a12
                     vectorB_mos[place1 - 1] -= b1
-                    matrixA_mos[place3 - 1][place2 - 1] -= a11
+                    matrixA_mos[place3 - 1][place1 - 1] -= a12
                     matrixA_mos[place3 - 1][place3 - 1] += a11 + a12
                     vectorB_mos[place3 - 1] += b1
             elif S == "0":
+                #print(place1," ",place2," ",place3," ")
                 if D == "0" and G != "0":
                     matrixA_mos[place2 - 1][place2 - 1] += 0
                     vectorB_mos[place2 - 1] += 0
@@ -582,6 +592,7 @@ def Dc_bias(
                     matrixA_mos[place1 - 1][place1 - 1] += a12  # Change  
                     vectorB_mos[place1 - 1] -= b1
             else:
+                print(place1," ",place2," ",place3," ")
                 matrixA_mos[place1 - 1][place2 - 1] += a11
                 matrixA_mos[place1 - 1][place1 - 1] += a12
                 matrixA_mos[place1 - 1][place3 - 1] -= (a11 + a12)
@@ -590,6 +601,7 @@ def Dc_bias(
                 matrixA_mos[place3 - 1][place1 - 1] -= a12
                 matrixA_mos[place3 - 1][place3 - 1] += (a11 + a12)
                 vectorB_mos[place3 - 1] += b1
+                
         
         X_list = []
         vectorB_mix = np.zeros(matrix_size)
@@ -705,6 +717,7 @@ def Dc_bias(
                 place2 = dic_node[G]
                 place3 = dic_node[S]
                 place4 = dic_node[B] 
+                #print("k"," G: ",G,"D: ",D,"S: ",S)
                 if D == "0" and G == "0" and S == "0":
                         pass
                     
@@ -903,6 +916,11 @@ def Dc_bias(
                 # print("length of x0his",len(x_0his))
                 iti_time += 1
                 #print("iti_time: ",iti_time," ",voltage," ",max(vgs_diff)," ",max(vds_diff))
+# =============================================================================
+#                 [ 1.80176898e+00  0.00000000e+00  1.80175347e+00 -3.81658350e-30
+#                   1.39262362e+00  1.80180000e+00 -6.79794607e-09  0.00000000e+00
+#                   3.81658350e-21]
+# =============================================================================
                 
                 for u in range(len(mos_node)):
                     # 紀錄mos的各節點
@@ -1284,7 +1302,27 @@ def Dc_bias(
         # 畫圖用的x矩陣加入當下頻率值
         x_0_list.append(x_0)
         times += 1
-        
+    counter=1
+    dic_result={}
+    for i in range(len(templist)):
+        if(templist[i]=="0"):
+            dic_result["gnd"]=0
+            #counter=counter+1
+            #continue
+        else:
+            dic_result["v("+templist[i]+")"]=counter
+            counter=counter+1
+        continue
+    for i in range(len(namelist)):
+        if(namelist[i][0]=="v"):
+            dic_result["i("+namelist[i]+")"]=counter
+            counter=counter+1
+        elif(namelist[i][0]=="l"):
+            dic_result["i("+namelist[i]+")"]=counter
+            counter=counter+1
+        else:
+            continue
+    print(dic_result)
     print(result[-1])
     return x_0,vds_his,vgs_his
 
