@@ -3,6 +3,7 @@ from calculation_module_0129 import ac_analysis,Dc_analysis
 from parse import parse
 import numpy as np
 import sympy as sp
+from dc_bias import Dc_bias
 from scipy import linalg
 #from mpmath import mp
 
@@ -65,6 +66,9 @@ for i in range(len(templist)):
 print("open circiut:",circuit_name)
 #設定模擬指令
 cmd=str(input("請輸入模擬內容:"))
+vds_his=[]
+vgs_his=[]
+null=[]
 #分割指令
 cmd=cmd.split()
 #讀取指令
@@ -109,7 +113,26 @@ elif(cmd[0].lower()=="dc"):
         else:
             cmd_cond=False
             break
-    Dc_analysis(templist,element2,element,dic_node,matrix_size,cmd,namelist,nodelist,circuit_name,valuelist,typelist,components,V_step,start_V,end_V,object_source)
+    null,vds_his,vgs_his=Dc_bias(
+        templist,
+        element2,
+        element,
+        dic_node,
+        matrix_size,
+        cmd,
+        namelist,
+        nodelist,
+        circuit_name,
+        valuelist,
+        typelist,
+        components,
+        object_source,
+        vgs_his,
+        vds_his,
+        null,
+        start_V
+    )
+    Dc_analysis(templist,element2,element,dic_node,matrix_size,cmd,namelist,nodelist,circuit_name,valuelist,typelist,components,V_step,start_V,end_V,object_source,vds_his,vgs_his)
 else:
     print("開發中!!!!")
 #===========================================

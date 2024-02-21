@@ -429,6 +429,8 @@ def Dc_analysis(
     start_V,
     end_V,
     object_source,
+    vds_his,
+    vgs_his
 ):
     # PARAMETER
     Vt = 0.4
@@ -467,8 +469,7 @@ def Dc_analysis(
     
     firstTime = True
     first_print_maxtrix = True
-    vds_his = []
-    vgs_his = []
+
     while voltage != end_V :
         vectorB_mos = np.zeros(matrix_size)
         matrixA_mos = np.zeros((matrix_size, matrix_size))
@@ -964,13 +965,13 @@ def Dc_analysis(
                     matrixA_mos[place3 - 1][place3 - 1] += a11 + a12
                     vectorB_mos[place3 - 1] += b1
                 elif S == "0" and D != "0":
-                    matrixA_mos[place1 - 1][place2 - 1] += a11
+                    matrixA_mos[place1 - 1][place1 - 1] += a12
                     vectorB_mos[place1 - 1] -= b1
                 elif S != "0" and D != "0":
-                    matrixA_mos[place1 - 1][place2 - 1] += a11
+                    matrixA_mos[place1 - 1][place1 - 1] += a12
                     matrixA_mos[place1 - 1][place3 - 1] -= a11 + a12
                     vectorB_mos[place1 - 1] -= b1
-                    matrixA_mos[place3 - 1][place2 - 1] -= a11
+                    matrixA_mos[place3 - 1][place1 - 1] -= a12
                     matrixA_mos[place3 - 1][place3 - 1] += a11 + a12
                     vectorB_mos[place3 - 1] += b1
             elif S == "0":
@@ -1065,6 +1066,10 @@ def Dc_analysis(
             #             for column in range(len(vectorB)):
             #                 matrixA_mix[row][column]=matrixA[row][column]+matrixA_nonlin[row][column]
             # =============================================================================
+            matrixA_mask=np.zeros((matrix_size, matrix_size))
+            for k in range(element2):
+                matrixA_mask[k][k]+=10**-9
+            
             matrixA_mix = matrixA + matrixA_nonlin+matrixA_mos+matrixA_mask
             vectorB_mix = vectorB + vectorB_nonlin+vectorB_mos
             #print("MA:",matrixA_mix)
@@ -1301,7 +1306,7 @@ def Dc_analysis(
                 or max(vgs_diff)>=0.00001 or max(vds_diff)>=0.00001
             )) :
                 #if(iti_time<=10):
-                #print(iti_time," ",max(vgs_diff)," ",max(vds_diff))
+                print(iti_time," ",max(vgs_diff)," ",max(vds_diff))
                 # print("length of x0",len(x_0))
                 # print("length of x0his",len(x_0his))
                 iti_time += 1
@@ -1339,8 +1344,7 @@ def Dc_analysis(
                         #print(vgs_his[u]," ",vgs_his[u])
                         # Cutoff
                         if Vgs < Vt:
-                            if(voltage>= 1 and voltage<=1.25):
-                                print("cutoff_p",Vgs," ",Vds," ",voltage," ",namelist[mos_device[u]])
+                        
                         
                             a12 = 0
                             a11 = sp.exp((Vgs - Vt) / 0.0258528413 - 32.2361913) / 0.0258528413
@@ -1348,8 +1352,7 @@ def Dc_analysis(
                         
                         # Triode
                         elif (Vgs - Vt) >= Vds:
-                            if(voltage>= 1 and voltage<=1.25):
-                                print("triode_p",Vgs," ",Vds," ",voltage," ",namelist[mos_device[u]])
+                        
                             a11 = W_L * k_p * Vds
                             a12 = W_L * k_p * ((Vgs - Vt) - Vds)
                             b1 = -(
@@ -1360,8 +1363,7 @@ def Dc_analysis(
 
                         # Sat
                         elif (Vgs - Vt) < Vds:
-                            if(voltage>= 1 and voltage<=1.25):
-                                print("sat_p",Vgs," ",Vds," ",voltage," ",namelist[mos_device[u]])
+                        
                             a11 = (
                                 (1 / 2)
                                 * W_L
@@ -1453,13 +1455,13 @@ def Dc_analysis(
                             matrixA_mos[place3 - 1][place3 - 1] += a11 + a12
                             vectorB_mos[place3 - 1] += b1
                         elif S == "0" and D != "0":
-                            matrixA_mos[place1 - 1][place2 - 1] += a11
+                            matrixA_mos[place1 - 1][place1 - 1] += a12
                             vectorB_mos[place1 - 1] -= b1
                         elif S != "0" and D != "0":
-                            matrixA_mos[place1 - 1][place2 - 1] += a11
+                            matrixA_mos[place1 - 1][place1 - 1] += a12
                             matrixA_mos[place1 - 1][place3 - 1] -= a11 + a12
                             vectorB_mos[place1 - 1] -= b1
-                            matrixA_mos[place3 - 1][place2 - 1] -= a11
+                            matrixA_mos[place3 - 1][place1 - 1] -= a12
                             matrixA_mos[place3 - 1][place3 - 1] += a11 + a12
                             vectorB_mos[place3 - 1] += b1
                     elif S == "0":

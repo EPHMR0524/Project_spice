@@ -22,7 +22,8 @@ def Dc_bias(
     object_source,
     vgs_his,
     vds_his,
-    x_0
+    x_0,
+    start_V
 ):
     # PARAMETER
     Vt = 0.4
@@ -156,7 +157,7 @@ def Dc_bias(
                     else:
                         vectorB[element2 - 1] += 0
                 elif namelist[i] == object_source:
-                    vectorB[element2 - 1] += 0
+                    vectorB[element2 - 1] += start_V
                 else:
                     vectorB[element2 - 1] += 0
                 # 填入matrixA

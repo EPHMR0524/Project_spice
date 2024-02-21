@@ -202,6 +202,7 @@ L_last=[]
 vgs_his=[]
 vds_his=[]
 object_source="non"
+start_V=0
 nonlin_his,vds_his,vgs_his=Dc_bias(
     templist,
     element2,
@@ -218,7 +219,8 @@ nonlin_his,vds_his,vgs_his=Dc_bias(
     object_source,
     vgs_his,
     vds_his,
-    nonlin_his
+    nonlin_his,
+    start_V
 )
 print(vds_his,vgs_his,nonlin_his)
 while (t <= end_time):
