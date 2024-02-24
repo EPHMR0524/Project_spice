@@ -63,7 +63,7 @@ def Dc_bias(
     first_print_maxtrix = True
     while  partial <100:
         partial+=1
-        print(partial/100*100)
+        #print(partial/100*100)
         vectorB_mos = np.zeros(matrix_size)
         matrixA_mos = np.zeros((matrix_size, matrix_size))
         iti_time = 0
@@ -593,7 +593,7 @@ def Dc_bias(
                     matrixA_mos[place1 - 1][place1 - 1] += a12  # Change  
                     vectorB_mos[place1 - 1] -= b1
             else:
-                print(place1," ",place2," ",place3," ")
+                #print(place1," ",place2," ",place3," ")
                 matrixA_mos[place1 - 1][place2 - 1] += a11
                 matrixA_mos[place1 - 1][place1 - 1] += a12
                 matrixA_mos[place1 - 1][place3 - 1] -= (a11 + a12)

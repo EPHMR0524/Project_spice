@@ -692,147 +692,12 @@ def Dc_analysis(
             place2 = dic_node[mos_node[u][1]]
             place3 = dic_node[mos_node[u][2]]
             place4 = dic_node[mos_node[u][3]]  # voltage==start_V
+            D = mos_node[u][0]
+            G = mos_node[u][1]
+            S = mos_node[u][2]
+            B = mos_node[u][3]
             #print(mos_node[u][0]," ",mos_node[u][1]," ",mos_node[u][2]," ",mos_node[u][3])
             # 計算初值firstTime == 
-            if  voltage == start_V and len(vgs_his)!=len(mos_node):
-                matrixA_mask=np.zeros((matrix_size, matrix_size))
-                for k in range(element2):
-                    matrixA_mask[k][k]+=10**-9
-                vectorB_check = vectorB + vectorB_nonlin  # vectorB=[1,1,1,2,2]
-                matrixA_check = matrixA + matrixA_nonlin+matrixA_mask
-                
-                # 先解一次矩陣 
-                A = np.array(matrixA_check)
-                P, L, U = linalg.lu(A)
-                # print(L)
-                # print(U)
-                B = np.array(vectorB_check)
-                Y = linalg.solve_triangular(L, P.T @ B, lower=True)
-                
-                vector_check = linalg.solve_triangular(U, Y, lower=False)
-                #print("firstTime_A:", A)
-                #print("firstTime_B:", B)
-                #print(dic_node)
-                #print("vector_check(first_X): ", vector_check)
-                D = mos_node[u][0]
-                G = mos_node[u][1]
-                S = mos_node[u][2]
-                B = mos_node[u][3]
-                # mos_cnt+=1;
-                if D == "0" and G == "0" and S == "0":
-                    pass
-                
-                elif D == "0":
-                    if G == "0" and S != "0":
-                        if namelist[mos_device[u]][1] == "p":
-                            vds_his.append([vector_check[place3 - 1],vector_check[place3 - 1]])
-                            vgs_his.append([vector_check[place3 - 1],vector_check[place3 - 1]])
-                        else:
-                            vds_his.append([-vector_check[place3 - 1],-vector_check[place3 - 1]])
-                            vgs_his.append([-vector_check[place3 - 1],-vector_check[place3 - 1]])
-                    elif S == "0" and G != "0":
-                        if namelist[mos_device[u]][1] == "p":
-                            vds_his.append([0,0])
-                            vgs_his.append([-vector_check[place2 - 1],-vector_check[place2 - 1]])
-                        else:
-                            vds_his.append([0,0])
-                            vgs_his.append([vector_check[place2 - 1],vector_check[place2 - 1]])
-                    elif S != "0" and G != "0":
-                        if namelist[mos_device[u]][1] == "p":
-                            vds_his.append([vector_check[place3 - 1],vector_check[place3 - 1]])
-                            vgs_his.append(
-                                [vector_check[place3 - 1] - vector_check[place2 - 1],
-                                 vector_check[place3 - 1] - vector_check[place2 - 1]]
-                            )
-                        else:
-                            vds_his.append([-vector_check[place3 - 1],-vector_check[place3 - 1]])
-                            vgs_his.append(
-                                [vector_check[place2 - 1] - vector_check[place3 - 1],
-                                 vector_check[place2 - 1] - vector_check[place3 - 1]]
-                            )
-                            
-                elif G == "0":
-                    if D == "0" and S != "0":
-                        if namelist[mos_device[u]][1] == "p":
-                            vds_his.append([vector_check[place3 - 1],vector_check[place3 - 1]])
-                            vgs_his.append([vector_check[place3 - 1],vector_check[place3 - 1]])
-                        else:
-                            vds_his.append([-vector_check[place3 - 1],-vector_check[place3 - 1]])
-                            vgs_his.append([-vector_check[place3 - 1],-vector_check[place3 - 1]])
-                    elif S == "0" and D != "0":
-                        if namelist[mos_device[u]][1] == "p":
-                            vds_his.append([-vector_check[place1 - 1],-vector_check[place1 - 1]])
-                            vgs_his.append([0,0])
-                        else:
-                            vds_his.append([vector_check[place1 - 1],vector_check[place1 - 1]])
-                            vgs_his.append([0,0])
-                    elif S != "0" and D != "0":
-                        if namelist[mos_device[u]][1] == "p":
-                            vds_his.append(
-                                [vector_check[place3 - 1] - vector_check[place1 - 1],
-                                 vector_check[place3 - 1] - vector_check[place1 - 1]]
-                            )
-                            vgs_his.append([vector_check[place3 - 1],vector_check[place3 - 1]])
-                        else:
-                            vds_his.append(
-                                [vector_check[place1 - 1] - vector_check[place3 - 1],
-                                 vector_check[place1 - 1] - vector_check[place3 - 1]]
-                            )
-                            vgs_his.append([-vector_check[place3 - 1],-vector_check[place3 - 1]])
-                
-                elif S == "0":
-                    if D == "0" and G != "0":
-                        if namelist[mos_device[u]][1] == "p":
-                            vds_his.append([0,0])
-                            vgs_his.append([-vector_check[place2 - 1],-vector_check[place2 - 1]])
-                        else:
-                            vds_his.append([0,0])
-                            vgs_his.append([vector_check[place2 - 1],vector_check[place2 - 1]])
-                    elif G == "0" and D != "0":
-                        if namelist[mos_device[u]][1] == "p":
-                            vds_his.append([-vector_check[place1 - 1],-vector_check[place1 - 1]])
-                            vgs_his.append([0,0])
-                        else:
-                            vds_his.append([vector_check[place1 - 1],vector_check[place1 - 1]])
-                            vgs_his.append([0,0])
-                    elif G != "0" and D != "0":
-                        if namelist[mos_device[u]][1] == "p":
-                            vds_his.append([-vector_check[place1 - 1],-vector_check[place1 - 1]])
-                            vgs_his.append([-vector_check[place2 - 1],-vector_check[place2 - 1]])
-                            #print(vgs_his[-1]," ",vds_his[-1])
-                        else:
-                            #print(vector_check[place1 - 1] - 0," ",vector_check[place2 - 1])
-                            vds_his.append([vector_check[place1 - 1],vector_check[place1 - 1]])
-                            vgs_his.append([vector_check[place2 - 1],vector_check[place2 - 1]])
-                else:
-                    if namelist[mos_device[u]][1] == "p":
-                        vds_his.append(
-                            [vector_check[place3 - 1] - vector_check[place1 - 1],
-                             vector_check[place3 - 1] - vector_check[place1 - 1]]
-                        )
-                        vgs_his.append(
-                            [vector_check[place3 - 1] - vector_check[place2 - 1],
-                             vector_check[place3 - 1] - vector_check[place2 - 1]]
-                        )
-                    else:
-                        # print(vector_check[place1-1]-vector_check[place3-1])
-                        vds_his.append(
-                            [vector_check[place1 - 1] - vector_check[place3 - 1],
-                             vector_check[place1 - 1] - vector_check[place3 - 1]]
-                        )
-                        vgs_his.append(
-                            [vector_check[place2 - 1] - vector_check[place3 - 1],
-                             vector_check[place2 - 1] - vector_check[place3 - 1]]
-                        )
-                
-                firstTime = False
-                #continue
-            
-            else:
-                #firstTime = True
-                pass
-            
-            
             a11 = 0
             a12 = 0
             b1 = 0
@@ -853,13 +718,16 @@ def Dc_analysis(
                 
                 # Cutoff
                 if Vgs < Vt:
-                    #print("cutoff_p",Vgs," ",Vds)
+                    if(voltage==1.15):
+                        print("cutoff_p",Vgs," ",Vds)
                     a12 = 0
                     a11 = sp.exp((Vgs - Vt) / 0.0258528413 - 32.2361913) / 0.0258528413
                     b1 = -(a11 * 0.0258528413 - a11 * (Vgs))
                 
                 # Triode
                 elif (Vgs - Vt) >= Vds:
+                    if(voltage==1.15):
+                        print("triode_p",Vgs," ",Vds)
                     #print("triode_p",Vgs," ",Vds)
                     a11 = W_L * k_p * Vds
                     a12 = W_L * k_p * ((Vgs - Vt) - Vds)
@@ -871,6 +739,8 @@ def Dc_analysis(
 
                 # Sat
                 elif (Vgs - Vt) < Vds:
+                    if(voltage==1.15):
+                        print("sat_p",Vgs," ",Vds)
                     #print("sat_p",Vgs," ",Vds)
                     a11 = (
                         (1 / 2)
@@ -903,15 +773,19 @@ def Dc_analysis(
                 W_L = width / length
                 
                 # Cutoff
-                if Vgs < Vt:
+                if Vgs <= Vt:
+                    if(voltage==1.15):
+                        print("cutoff_n",Vgs," ",Vds)
                     #print("cutoff")
                     a12 = 0
                     a11 = sp.exp((Vgs - Vt) / 0.0258528413 - 32.2361913) / 0.0258528413
                     b1 = a11 * 0.0258528413 - a11 * (Vgs)
                 
                 # Triode
-                elif (Vgs - Vt) >= Vds:
+                elif (Vgs - Vt) > Vds:
                     #print("triode")
+                    if(voltage==1.15):
+                        print("triode_n",Vgs," ",Vds)
                     a11 = W_L * k_n * Vds
                     a12 = W_L * k_n * ((Vgs - Vt) - Vds)
                     b1 = (
@@ -921,8 +795,10 @@ def Dc_analysis(
                     )
                 
                 # Sat
-                elif (Vgs - Vt) < Vds:
+                elif (Vgs - Vt) <= Vds:
                     #print("sat")
+                    if(voltage==1.15):
+                        print("sat_n",Vgs," ",Vds)
                     a11 = (
                         (1 / 2)
                         * W_L
@@ -942,7 +818,7 @@ def Dc_analysis(
                         - a11 * Vgs
                         - a12 * Vds
                     )
-            #print(a11," ",a12)
+            #print(D," ",G," ",S)
             if D == "0" and G == "0" and S == "0":
                 
                 pass
@@ -957,7 +833,7 @@ def Dc_analysis(
                     matrixA_mos[place2 - 1][place2 - 1] += 0
                     matrixA_mos[place2 - 1][place3 - 1] += 0
                     vectorB_mos[place2 - 1] += 0
-                    matrixA_mos[place3 - 1][place1 - 1] -= a12
+                    matrixA_mos[place3 - 1][place1 - 1] -= a11
                     matrixA_mos[place3 - 1][place3 - 1] += a11 + a12
                     vectorB_mos[place3 - 1] += b1
             elif G == "0":
@@ -979,7 +855,7 @@ def Dc_analysis(
                     matrixA_mos[place2 - 1][place2 - 1] += 0
                     vectorB_mos[place2 - 1] += 0
                 elif G == "0" and D != "0":
-                    matrixA_mos[place1 - 1][place2 - 1] += a11  # Change
+                    matrixA_mos[place1 - 1][place1 - 1] += a12  # Change
                     vectorB_mos[place1 - 1] -= b1
                 elif G != "0" and D != "0":
                     matrixA_mos[place2 - 1][place1 - 1] += 0
@@ -1144,7 +1020,7 @@ def Dc_analysis(
                             vds_his[u][1] = (X[place3 - 1])
                             vgs_his[u][0] = vgs_his[u][1]
                             vgs_his[u][1] = (
-                                X[place3 - 1] - X[place3 - 1]
+                                X[place3 - 1] - X[place2 - 1]
                             )
                         else:
                             vds_his[u][0] = vds_his[u][1]
@@ -1306,7 +1182,7 @@ def Dc_analysis(
                 or max(vgs_diff)>=0.00001 or max(vds_diff)>=0.00001
             )) :
                 #if(iti_time<=10):
-                print(iti_time," ",max(vgs_diff)," ",max(vds_diff))
+                #print(iti_time," ",max(vgs_diff)," ",max(vds_diff))
                 # print("length of x0",len(x_0))
                 # print("length of x0his",len(x_0his))
                 iti_time += 1
@@ -1343,16 +1219,16 @@ def Dc_analysis(
                         W_L = width / length
                         #print(vgs_his[u]," ",vgs_his[u])
                         # Cutoff
-                        if Vgs < Vt:
+                        if Vgs <= Vt:
                         
-                        
+
                             a12 = 0
                             a11 = sp.exp((Vgs - Vt) / 0.0258528413 - 32.2361913) / 0.0258528413
                             b1 = -(a11 * 0.0258528413 - a11 * (Vgs))
                         
                         # Triode
                         elif (Vgs - Vt) >= Vds:
-                        
+
                             a11 = W_L * k_p * Vds
                             a12 = W_L * k_p * ((Vgs - Vt) - Vds)
                             b1 = -(
@@ -1363,7 +1239,7 @@ def Dc_analysis(
 
                         # Sat
                         elif (Vgs - Vt) < Vds:
-                        
+
                             a11 = (
                                 (1 / 2)
                                 * W_L
@@ -1395,13 +1271,15 @@ def Dc_analysis(
                         # Cutoff
                         if Vgs < Vt:
                             #print("cutoff")
+
                             a12 = 0
                             a11 = sp.exp((Vgs - Vt) / 0.0258528413 - 32.2361913) / 0.0258528413
                             b1 = a11 * 0.0258528413 - a11 * (Vgs)
                         
                         # Triode
-                        elif (Vgs - Vt) >= Vds:
+                        elif (Vgs - Vt) > Vds:
                             #print("triode")
+
                             a11 = W_L * k_n * Vds
                             a12 = W_L * k_n * ((Vgs - Vt) - Vds)
                             b1 = (
@@ -1411,8 +1289,9 @@ def Dc_analysis(
                             )
                         
                         # Sat
-                        elif (Vgs - Vt) < Vds:
+                        elif (Vgs - Vt) <= Vds:
                             #print("sat")
+
                             a11 = (
                                 (1 / 2)
                                 * W_L
@@ -1441,14 +1320,10 @@ def Dc_analysis(
                             matrixA_mos[place3 - 1][place3 - 1] += a11 + a12
                             vectorB_mos[place3 - 1] += b1
                         elif S == "0" and G != "0":
-                            matrixA_mos[place2 - 1][place2 - 1] += 0
-                            vectorB_mos[place2 - 1] += 0
+                            pass
                         elif S != "0" and G != "0":
-                            matrixA_mos[place2 - 1][place2 - 1] += 0
-                            matrixA_mos[place2 - 1][place3 - 1] += 0
-                            vectorB_mos[place2 - 1] += 0
-                            matrixA_mos[place3 - 1][place1 - 1] -= a12
-                            matrixA_mos[place3 - 1][place3 - 1] += a11 + a12
+                            matrixA_mos[place3 - 1][place2 - 1] -= a11
+                            matrixA_mos[place3 - 1][place3 - 1] += (a11 + a12)
                             vectorB_mos[place3 - 1] += b1
                     elif G == "0":
                         if D == "0" and S != "0":
@@ -1466,17 +1341,13 @@ def Dc_analysis(
                             vectorB_mos[place3 - 1] += b1
                     elif S == "0":
                         if D == "0" and G != "0":
-                            matrixA_mos[place2 - 1][place2 - 1] += 0
-                            vectorB_mos[place2 - 1] += 0
+                            pass
                         elif G == "0" and D != "0":
-                            matrixA_mos[place1 - 1][place2 - 1] += a11  # Change
+                            matrixA_mos[place1 - 1][place1 - 1] += a12  # Change
                             vectorB_mos[place1 - 1] -= b1
                         elif G != "0" and D != "0":
-                            matrixA_mos[place2 - 1][place1 - 1] += 0
-                            matrixA_mos[place2 - 1][place2 - 1] += 0
-                            vectorB_mos[place2 - 1] += 0
-                            matrixA_mos[place1 - 1][place2 - 1] += a11  # Change
-                            matrixA_mos[place1 - 1][place1 - 1] += a12  # Change  
+                            matrixA_mos[place1 - 1][place2 - 1] += a11
+                            matrixA_mos[place1 - 1][place1 - 1] += a12
                             vectorB_mos[place1 - 1] -= b1
                     else:
                         matrixA_mos[place1 - 1][place2 - 1] += a11
@@ -1565,8 +1436,8 @@ def Dc_analysis(
                             if namelist[mos_device[u]][1] == "p":
                                 vds_his[u] = [X_list[-1][place3 - 1],X_list[-1][place3 - 1]]
                                 vgs_his[u] = [
-                                    X_list[-1][place3 - 1] - X_list[-1][place3 - 1],
-                                    X_list[-1][place3 - 1] - X_list[-1][place3 - 1]
+                                    X_list[-1][place3 - 1] - X_list[-1][place2 - 1],
+                                    X_list[-1][place3 - 1] - X_list[-1][place2 - 1]
                                 ]
                             else:
                                 vds_his[u] = [-X_list[-1][place3 - 1],-X_list[-1][place3 - 1]]
@@ -1682,7 +1553,8 @@ def Dc_analysis(
         # print(result)
         # print(-result[-1][-1])
         iti_list.append(iti_time)
-        
+        if(voltage==1.15):
+            print("1.15: ",X_list[-1][2])
         voltage += V_step
         voltage = round(voltage, 6)  # modify
         
