@@ -203,25 +203,26 @@ vgs_his=[]
 vds_his=[]
 object_source="non"
 start_V=0
-nonlin_his,vds_his,vgs_his=Dc_bias(
-    templist,
-    element2,
-    element,
-    dic_node,
-    matrix_size,
-    cmd,
-    namelist,
-    nodelist,
-    circuit_name,
-    valuelist,
-    typelist,
-    components,
-    object_source,
-    vgs_his,
-    vds_his,
-    nonlin_his,
-    start_V
-)
+if(len(mos_device_list)!=0):
+    nonlin_his,vds_his,vgs_his=Dc_bias(
+        templist,
+        element2,
+        element,
+        dic_node,
+        matrix_size,
+        cmd,
+        namelist,
+        nodelist,
+        circuit_name,
+        valuelist,
+        typelist,
+        components,
+        object_source,
+        vgs_his,
+        vds_his,
+        nonlin_his,
+        start_V
+    )
 print(vds_his,vgs_his,nonlin_his)
 while (t <= end_time):
     X=[]
@@ -229,7 +230,9 @@ while (t <= end_time):
     checknode=[]
     check_current=[]
     X_diff=[]
-    
+    vgs_his_temp=vgs_his
+    vds_his_temp=vds_his
+    #print(t/end_time*100)
     if(count<1):
         X,check_current,checknode,nonlin_his,vgs_his,vds_his=step_euler(
             L_pass,element1,nonlin_his,matrixA,vectorB,nodelist,C_pass,dic_node
@@ -322,12 +325,15 @@ while (t <= end_time):
         #print(X_diff)
         #print(max(X_diff)," ",i_max)
         if((max(X_diff)>10**-3 or i_max>=10**-5) and t>0 and time_step/10>(increment/100)):
+            print("fault out",t)
             t-=time_step
             time_step/=10
+            vgs_his=vgs_his_temp
+            vds_his=vds_his_temp
             #new_time_step/=10
             #X=[]
             #X_BDF=[]
-        elif(max(X_diff)<=10**-3 and i_max<10**-5 and t>0 and time_step*10<=increment):
+        elif(max(X_diff)<=10**-4 and i_max<10**-6 and t>0 and time_step*10<=increment):
             time_step*=10
     #print(t,"success out")
     if(len(X)==0):
@@ -363,7 +369,7 @@ while (t <= end_time):
 #print(len(timefault))
 #print(result[-1][1])
 path='rea.txt'
-#print(result[0][2])
+print(len(result))
 f=open(path,"w")
 
 for i in range(len(result)):

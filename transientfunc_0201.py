@@ -279,14 +279,14 @@ def step_euler(
                     
                     # Cutoff
                     if Vgs < Vt:
-                        ##print("cutoff_p",Vgs," ",Vds)
+                        
                         a12 = 0
                         a11 = sp.exp((Vgs - Vt) / 0.0258528413 - 32.2361913) / 0.0258528413
                         b1 = -(a11 * 0.0258528413 - a11 * (Vgs))
                     
                     # Triode
                     elif (Vgs - Vt) > Vds:
-                        ##print("triode_p",Vgs," ",Vds)
+
                         a11 = W_L * k_p * Vds
                         a12 = W_L * k_p * ((Vgs - Vt) - Vds)
                         b1 = -(
@@ -297,7 +297,6 @@ def step_euler(
 
                     # Sat
                     elif (Vgs - Vt) <= Vds:
-                        ##print("sat_p",Vgs," ",Vds)
                         a11 = (
                             (1 / 2)
                             * W_L
@@ -319,6 +318,7 @@ def step_euler(
                         )
                         
                 elif mos_device_list[i][1] == "n":
+                    
                     ##print(vgs_his)
                     Vgs = vgs_his[i][-1]
                     Vds = vds_his[i][-1]
@@ -331,6 +331,7 @@ def step_euler(
                     
                     # Cutoff
                     if Vgs < Vt:
+                        
                         ##print("cutoff")
                         a12 = 0
                         a11 = sp.exp((Vgs - Vt) / 0.0258528413 - 32.2361913) / 0.0258528413
@@ -339,6 +340,7 @@ def step_euler(
                     # Triode
                     elif (Vgs - Vt) > Vds:
                         ##print("triode")
+                        
                         a11 = W_L * k_n * Vds
                         a12 = W_L * k_n * ((Vgs - Vt) - Vds)
                         b1 = (
@@ -350,6 +352,7 @@ def step_euler(
                     # Sat
                     elif (Vgs - Vt) <= Vds:
                         ##print("sat")
+                        
                         a11 = (
                             (1 / 2)
                             * W_L
@@ -378,13 +381,9 @@ def step_euler(
                         matrixA_mos[place3 - 1][place3 - 1] += a11 + a12
                         vectorB_mos[place3 - 1] += b1
                     elif S == "0" and G != "0":
-                        matrixA_mos[place2 - 1][place2 - 1] += 0
-                        vectorB_mos[place2 - 1] += 0
+                        pass
                     elif S != "0" and G != "0":
-                        matrixA_mos[place2 - 1][place2 - 1] += 0
-                        matrixA_mos[place2 - 1][place3 - 1] += 0
-                        vectorB_mos[place2 - 1] += 0
-                        matrixA_mos[place3 - 1][place1 - 1] -= a12
+                        matrixA_mos[place3 - 1][place1 - 1] -= a11
                         matrixA_mos[place3 - 1][place3 - 1] += a11 + a12
                         vectorB_mos[place3 - 1] += b1
                 elif G == "0":
@@ -403,15 +402,11 @@ def step_euler(
                         vectorB_mos[place3 - 1] += b1
                 elif S == "0":
                     if D == "0" and G != "0":
-                        matrixA_mos[place2 - 1][place2 - 1] += 0
-                        vectorB_mos[place2 - 1] += 0
+                        pass
                     elif G == "0" and D != "0":
-                        matrixA_mos[place1 - 1][place2 - 1] += a11  # Change
+                        matrixA_mos[place1 - 1][place2 - 1] += a12  # Change
                         vectorB_mos[place1 - 1] -= b1
                     elif G != "0" and D != "0":
-                        matrixA_mos[place2 - 1][place1 - 1] += 0
-                        matrixA_mos[place2 - 1][place2 - 1] += 0
-                        vectorB_mos[place2 - 1] += 0
                         matrixA_mos[place1 - 1][place2 - 1] += a11  # Change
                         matrixA_mos[place1 - 1][place1 - 1] += a12  # Change  
                         vectorB_mos[place1 - 1] -= b1
@@ -469,6 +464,7 @@ def step_euler(
                 G = mos_device_node[u][1]
                 S = mos_device_node[u][2]
                 B = mos_device_node[u][3]
+                #print(mos_device_list[u]," D: ",D," G:",G," S: ",S," B: ",B," ",t)
                 if D == "0" and G == "0" and S == "0":
                         pass
                     
@@ -501,7 +497,7 @@ def step_euler(
                             vds_his[u][1] = (X[place3 - 1])
                             vgs_his[u][0] = vgs_his[u][1]
                             vgs_his[u][1] = (
-                                X[place3 - 1] - X[place3 - 1]
+                                X[place3 - 1] - X[place2 - 1]
                             )
                         else:
                             vds_his[u][0] = vds_his[u][1]
@@ -561,11 +557,11 @@ def step_euler(
                             vds_his[u][0] =vds_his[u][1] 
                             vds_his[u][1] = (0)
                             vgs_his[u][0] =vgs_his[u][1] 
-                            vgs_his[u][1] = (X[place2 - 1] - 0)
+                            vgs_his[u][1] = (X[place2 - 1] )
                     elif G == "0" and D != "0":
                         if mos_device_list[u][1] == "p":
                             vds_his[u][0] =vds_his[u][1] 
-                            vds_his[u][1] = (-X[place1 - 1] + 0)
+                            vds_his[u][1] = (-X[place1 - 1])
                             vgs_his[u][0]=vgs_his[u][1]
                             vgs_his[u][1] = (0)
                         else:
@@ -692,9 +688,9 @@ def step_euler(
                 abs(min(non_diff))>10**(-6)
                 or max(vgs_diff)>10**(-6) or max(vds_diff)>10**(-6))
                and iti<=100):
-                #if(iti==100):
-                    #print("iti:　",iti," ",t)
-                ##print("iti:　",iti)
+                
+                if(iti==100):
+                    print("iti:　",iti," ",t," v(input): ",1.8*np.sin(t*100*np.pi))
                 iti+=1
                 #生成Non線性元件矩陣A
                 matrixA_Non=np.zeros((matrix_size,matrix_size),dtype=float)
@@ -995,130 +991,6 @@ def BDF2(L_pass,element1,nonlin_his,matrixA,vectorB,nodelist,C_pass,
                 G = mos_device_node[i][1]
                 S = mos_device_node[i][2]
                 B = mos_device_node[i][3]
-                if(len(vds_his)!=len(mos_device_list)):
-                    matrixA_mask=np.zeros((matrix_size, matrix_size))
-                    for k in range(element2):
-                        matrixA_mask[k][k]+=10**-9
-                    vectorB_check = vectorB + vectorB_Non  # vectorB=[1,1,1,2,2]
-                    matrixA_check = matrixA + matrixA_Non+matrixA_mask
-                    
-                    # 先解一次矩陣 
-                    A = np.array(matrixA_check)
-                    P, L, U = linalg.lu(A)
-                    # #print(L)
-                    # #print(U)
-                    B = np.array(vectorB_check)
-                    Y = linalg.solve_triangular(L, P.T @ B, lower=True)
-                    vector_check = linalg.solve_triangular(U, Y, lower=False)
-                    D = mos_device_node[i][0]
-                    G = mos_device_node[i][1]
-                    S = mos_device_node[i][2]
-                    B = mos_device_node[i][3]
-                    if D == "0" and G == "0" and S == "0":
-                        pass
-                    
-                    elif D == "0":
-                        if G == "0" and S != "0":
-                            if mos_device_list[i][1] == "p":
-                                vds_his.append([vector_check[place3 - 1],vector_check[place3 - 1]])
-                                vgs_his.append([vector_check[place3 - 1],vector_check[place3 - 1]])
-                            else:
-                                vds_his.append([-vector_check[place3 - 1],-vector_check[place3 - 1]])
-                                vgs_his.append([-vector_check[place3 - 1],-vector_check[place3 - 1]])
-                        elif S == "0" and G != "0":
-                            if mos_device_list[i][1] == "p":
-                                vds_his.append([0,0])
-                                vgs_his.append([-vector_check[place2 - 1],-vector_check[place2 - 1]])
-                            else:
-                                vds_his.append([0,0])
-                                vgs_his.append([vector_check[place2 - 1],vector_check[place2 - 1]])
-                        elif S != "0" and G != "0":
-                            if mos_device_list[i][1] == "p":
-                                vds_his.append([vector_check[place3 - 1],vector_check[place3 - 1]])
-                                vgs_his.append(
-                                    [vector_check[place3 - 1] - vector_check[place2 - 1],
-                                     vector_check[place3 - 1] - vector_check[place2 - 1]]
-                                )
-                            else:
-                                vds_his.append([-vector_check[place3 - 1],-vector_check[place3 - 1]])
-                                vgs_his.append(
-                                    [vector_check[place2 - 1] - vector_check[place3 - 1],
-                                     vector_check[place2 - 1] - vector_check[place3 - 1]]
-                                )
-                                
-                    elif G == "0":
-                        if D == "0" and S != "0":
-                            if mos_device_list[i][1] == "p":
-                                vds_his.append([vector_check[place3 - 1],vector_check[place3 - 1]])
-                                vgs_his.append([vector_check[place3 - 1],vector_check[place3 - 1]])
-                            else:
-                                vds_his.append([-vector_check[place3 - 1],-vector_check[place3 - 1]])
-                                vgs_his.append([-vector_check[place3 - 1],-vector_check[place3 - 1]])
-                        elif S == "0" and D != "0":
-                            if mos_device_list[i][1] == "p":
-                                vds_his.append([-vector_check[place1 - 1],-vector_check[place1 - 1]])
-                                vgs_his.append([0,0])
-                            else:
-                                vds_his.append([vector_check[place1 - 1],vector_check[place1 - 1]])
-                                vgs_his.append([0,0])
-                        elif S != "0" and D != "0":
-                            if mos_device_list[i][1] == "p":
-                                vds_his.append(
-                                    [vector_check[place3 - 1] - vector_check[place1 - 1],
-                                     vector_check[place3 - 1] - vector_check[place1 - 1]]
-                                )
-                                vgs_his.append([vector_check[place3 - 1],vector_check[place3 - 1]])
-                            else:
-                                vds_his.append(
-                                    [vector_check[place1 - 1] - vector_check[place3 - 1],
-                                     vector_check[place1 - 1] - vector_check[place3 - 1]]
-                                )
-                                vgs_his.append([-vector_check[place3 - 1],-vector_check[place3 - 1]])
-                    
-                    elif S == "0":
-                        if D == "0" and G != "0":
-                            if mos_device_list[i][1] == "p":
-                                vds_his.append([0,0])
-                                vgs_his.append([-vector_check[place2 - 1],-vector_check[place2 - 1]])
-                            else:
-                                vds_his.append([0,0])
-                                vgs_his.append([vector_check[place2 - 1],vector_check[place2 - 1]])
-                        elif G == "0" and D != "0":
-                            if mos_device_list[i][1] == "p":
-                                vds_his.append([-vector_check[place1 - 1],-vector_check[place1 - 1]])
-                                vgs_his.append([0,0])
-                            else:
-                                vds_his.append([vector_check[place1 - 1],vector_check[place1 - 1]])
-                                vgs_his.append([0,0])
-                        elif G != "0" and D != "0":
-                            if mos_device_list[i][1] == "p":
-                                vds_his.append([-vector_check[place1 - 1],-vector_check[place1 - 1]])
-                                vgs_his.append([-vector_check[place2 - 1],-vector_check[place2 - 1]])
-                                ##print(vgs_his[-1]," ",vds_his[-1])
-                            else:
-                                ##print(vector_check[place1 - 1] - 0," ",vector_check[place2 - 1])
-                                vds_his.append([vector_check[place1 - 1],vector_check[place1 - 1]])
-                                vgs_his.append([vector_check[place2 - 1],vector_check[place2 - 1]])
-                    else:
-                        if mos_device_list[i][1] == "p":
-                            vds_his.append(
-                                [vector_check[place3 - 1] - vector_check[place1 - 1],
-                                 vector_check[place3 - 1] - vector_check[place1 - 1]]
-                            )
-                            vgs_his.append(
-                                [vector_check[place3 - 1] - vector_check[place2 - 1],
-                                 vector_check[place3 - 1] - vector_check[place2 - 1]]
-                            )
-                        else:
-                            # #print(vector_check[place1-1]-vector_check[place3-1])
-                            vds_his.append(
-                                [vector_check[place1 - 1] - vector_check[place3 - 1],
-                                 vector_check[place1 - 1] - vector_check[place3 - 1]]
-                            )
-                            vgs_his.append(
-                                [vector_check[place2 - 1] - vector_check[place3 - 1],
-                                 vector_check[place2 - 1] - vector_check[place3 - 1]]
-                            )
                 a11 = 0
                 a12 = 0
                 b1 = 0
@@ -1238,13 +1110,9 @@ def BDF2(L_pass,element1,nonlin_his,matrixA,vectorB,nodelist,C_pass,
                         matrixA_mos[place3 - 1][place3 - 1] += a11 + a12
                         vectorB_mos[place3 - 1] += b1
                     elif S == "0" and G != "0":
-                        matrixA_mos[place2 - 1][place2 - 1] += 0
-                        vectorB_mos[place2 - 1] += 0
+                        pass
                     elif S != "0" and G != "0":
-                        matrixA_mos[place2 - 1][place2 - 1] += 0
-                        matrixA_mos[place2 - 1][place3 - 1] += 0
-                        vectorB_mos[place2 - 1] += 0
-                        matrixA_mos[place3 - 1][place1 - 1] -= a12
+                        matrixA_mos[place3 - 1][place1 - 1] -= a11
                         matrixA_mos[place3 - 1][place3 - 1] += a11 + a12
                         vectorB_mos[place3 - 1] += b1
                 elif G == "0":
@@ -1263,15 +1131,11 @@ def BDF2(L_pass,element1,nonlin_his,matrixA,vectorB,nodelist,C_pass,
                         vectorB_mos[place3 - 1] += b1
                 elif S == "0":
                     if D == "0" and G != "0":
-                        matrixA_mos[place2 - 1][place2 - 1] += 0
-                        vectorB_mos[place2 - 1] += 0
+                        pass
                     elif G == "0" and D != "0":
-                        matrixA_mos[place1 - 1][place2 - 1] += a11  # Change
+                        matrixA_mos[place1 - 1][place2 - 1] += a12  # Change
                         vectorB_mos[place1 - 1] -= b1
                     elif G != "0" and D != "0":
-                        matrixA_mos[place2 - 1][place1 - 1] += 0
-                        matrixA_mos[place2 - 1][place2 - 1] += 0
-                        vectorB_mos[place2 - 1] += 0
                         matrixA_mos[place1 - 1][place2 - 1] += a11  # Change
                         matrixA_mos[place1 - 1][place1 - 1] += a12  # Change  
                         vectorB_mos[place1 - 1] -= b1
@@ -1361,7 +1225,7 @@ def BDF2(L_pass,element1,nonlin_his,matrixA,vectorB,nodelist,C_pass,
                             vds_his[u][1] = (X[place3 - 1])
                             vgs_his[u][0] = vgs_his[u][1]
                             vgs_his[u][1] = (
-                                X[place3 - 1] - X[place3 - 1]
+                                X[place3 - 1] - X[place2 - 1]
                             )
                         else:
                             vds_his[u][0] = vds_his[u][1]
