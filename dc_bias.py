@@ -150,14 +150,14 @@ def Dc_bias(
                 place1 = dic_node[str1]
                 place2 = dic_node[str2]
                 value = components[i].dc
-                # 填入vectorB
+                # 填入vectorB 
                 if components[i].dc != 0:
                     if namelist[i] != object_source:
                         vectorB[element2 - 1] += value*(partial/100)
                     else:
                         vectorB[element2 - 1] += 0
                 elif namelist[i] == object_source:
-                    vectorB[element2 - 1] += start_V
+                    vectorB[element2 - 1] += start_V*(partial/100)
                 else:
                     vectorB[element2 - 1] += 0
                 # 填入matrixA
@@ -293,9 +293,9 @@ def Dc_bias(
                 for k in range(element2):
                     matrixA_mask[k][k]+=10**-9
                 vectorB_check = vectorB + vectorB_nonlin  # vectorB=[1,1,1,2,2]
-                matrixA_check = matrixA + matrixA_nonlin+matrixA_mask
-                
-                # 先解一次矩陣 
+                matrixA_check = matrixA + matrixA_nonlin + matrixA_mask
+                #print(matrixA_check)
+                # 先解一次矩陣 +matrixA_mask
                 A = np.array(matrixA_check)
                 P, L, U = linalg.lu(A)
                 # print(L)
@@ -623,8 +623,6 @@ def Dc_bias(
             # 歸零非線性元素矩陣
             matrixA_nonlin = np.zeros((matrix_size, matrix_size))
             vectorB_nonlin = np.zeros(matrix_size)
-            
-    
             # 解線性系統
             A = np.array(matrixA_mix)
             P, L, U = linalg.lu(A)

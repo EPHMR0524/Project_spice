@@ -113,6 +113,7 @@ elif(cmd[0].lower()=="dc"):
         else:
             cmd_cond=False
             break
+    #dc_bias
     null,vds_his,vgs_his=Dc_bias(
         templist,
         element2,
@@ -132,6 +133,7 @@ elif(cmd[0].lower()=="dc"):
         null,
         start_V
     )
+    #sweeping
     Dc_analysis(templist,element2,element,dic_node,matrix_size,cmd,namelist,nodelist,circuit_name,valuelist,typelist,components,V_step,start_V,end_V,object_source,vds_his,vgs_his)
 else:
     print("開發中!!!!")
