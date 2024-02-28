@@ -31,7 +31,7 @@ if __name__ == "__main__":#當此在主程式可用
 #構成矩陣
 #step1:找除了0以外的有幾個node
 #數有幾個元件，一樣用element當變數
-
+#print("few ",namelist)
 element=len(namelist)
 templist=[]
 timefault=[]
@@ -232,6 +232,7 @@ while (t <= end_time):
     X_diff=[]
     vgs_his_temp=vgs_his
     vds_his_temp=vds_his
+
     #print(t/end_time*100)
     if(count<1):
         X,check_current,checknode,nonlin_his,vgs_his,vds_his=step_euler(

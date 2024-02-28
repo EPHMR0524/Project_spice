@@ -7,6 +7,6 @@ Mn2 output input n1 0 n_18 w=0.8u l=0.4u
 Mn3 VDD output n1 0 n_18 w=0.64u l=0.4u
 C1 output 0 1f
 VVDD VDD 0 dc 1.8
-Vg input 0 SIN 0 1.8 50
+Vg input 0 pulse 2 0 0m 10m 10m 50m 120m 0
 *Vg input 0 DC 0
 .end

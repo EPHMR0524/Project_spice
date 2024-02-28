@@ -76,7 +76,7 @@ class Voltage(ComponentBase):
     @classmethod
     def pulse_unit_conversion(cls, pulse: list[float]) -> list[float]:
         return [unit_symbol(v) for v in pulse] + [0.0] * (8 - len(pulse))
-
+        #V1 V2 TD TR TF PW PER NP
 
 class Diode(ComponentBase):
     type_: str = "D"

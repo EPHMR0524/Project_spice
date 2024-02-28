@@ -9,7 +9,7 @@ MP1 Vout Vg VDD VDD P_18 W=1u L=0.18u
 MN1 Vout Vg VSS VSS N_18 W=1u L=0.18u
 * DC Sweep
 VD VDD 0 dc 1
-Vg Vg 0 SIN 0 1 50
+Vg Vg 0 pulse 1 0 0m 10m 10m 50m 120m 0
 *Vg Vg 0 dc 0
 VS VSS 0 dc 0
 

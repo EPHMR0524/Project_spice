@@ -121,7 +121,7 @@ def step_euler(
             comp_number=dic_component[tv_namelist[i]]
             #填入vectorB
             if(components[comp_number].sin[1]!=0):
-                #print("EUer ",components[comp_number].sin)
+                #print("EUer ",components[comp_number].sin," ",components[comp_number])
                 voff=components[comp_number].sin[0]
                 amp=components[comp_number].sin[1]
                 rads=components[comp_number].sin[2]*2*pi
@@ -141,8 +141,42 @@ def step_euler(
                     matrixA_TV[element2-1][place2-1]-=1
                     matrixA_TV[place1-1][element2-1]+=1
                     matrixA_TV[place2-1][element2-1]-=1
-            #elif:
+            elif(components[comp_number].pulse[6]!=0):
+                #print("EUer ",components[comp_number].sin," ",components[comp_number])
+                V1=components[comp_number].pulse[0]
+                V2=components[comp_number].pulse[1]
+                TD=components[comp_number].pulse[2]
+                TR=components[comp_number].pulse[3]
+                TF=components[comp_number].pulse[4]
+                PW=components[comp_number].pulse[5]
+                PER=components[comp_number].pulse[6]
+                NP=components[comp_number].pulse[7]
+                t_place=t-TD
+                T_in_PER=t_place%PER
+                if(t<=TD or T_in_PER==0):
+                    vectorB_TV[element2-1]+=V1
+                elif(t>TD and T_in_PER>0 and T_in_PER<(TR)):
+                    vectorB_TV[element2-1]+=V1+(V2-V1)*(T_in_PER)/TR
+                elif(t>TD and T_in_PER>=TR and T_in_PER<(TR+PW)):
+                    vectorB_TV[element2-1]+=V2
+                elif(t>TD and T_in_PER>=TR+PW and T_in_PER<(TR+PW+TF)):
+                    vectorB_TV[element2-1]+=V2+(V1-V2)/TF*(T_in_PER-TR-PW)
+                elif(t>TD and T_in_PER>=TR+PW+TF and T_in_PER<PER):
+                    vectorB_TV[element2-1]+=V1
                 
+                #填入matrixA_TV
+                if(str1=="0"):
+                    matrixA_TV[element2-1][place2-1]-=1
+                    matrixA_TV[place2-1][element2-1]-=1
+                elif(str2=="0"):
+                    matrixA_TV[element2-1][place1-1]+=1
+                    matrixA_TV[place1-1][element2-1]+=1  
+                else:
+                    matrixA_TV[element2-1][place1-1]+=1
+                    matrixA_TV[element2-1][place2-1]-=1
+                    matrixA_TV[place1-1][element2-1]+=1
+                    matrixA_TV[place2-1][element2-1]-=1
+            
             else:#需要修改，給DC電壓源在外面填
                 vectorB[element2-1]+=components[comp_number].dc
                 #print("ewfew ",t)
@@ -212,9 +246,9 @@ def step_euler(
     else:
         cond=True
         iti=0
-        cap=0
+        #cap=0
         while(cond):
-            cond_false=0
+            #cond_false=0
             modified=0
             for j in range(len(nonlin_namelist)):
                 ##print(t," ",j)
@@ -868,8 +902,41 @@ def BDF2(L_pass,element1,nonlin_his,matrixA,vectorB,nodelist,C_pass,
                     matrixA_TV[element2-1][place2-1]-=1
                     matrixA_TV[place1-1][element2-1]+=1
                     matrixA_TV[place2-1][element2-1]-=1
-            #elif:
+            elif(components[comp_number].pulse[6]!=0):
+                #print("EUer ",components[comp_number].sin," ",components[comp_number])
+                V1=components[comp_number].pulse[0]
+                V2=components[comp_number].pulse[1]
+                TD=components[comp_number].pulse[2]
+                TR=components[comp_number].pulse[3]
+                TF=components[comp_number].pulse[4]
+                PW=components[comp_number].pulse[5]
+                PER=components[comp_number].pulse[6]
+                NP=components[comp_number].pulse[7]
+                t_place=t-TD
+                T_in_PER=t_place%PER
+                if(t<=TD or T_in_PER==0):
+                    vectorB_TV[element2-1]+=V1
+                elif(t>TD and T_in_PER>0 and T_in_PER<(TR)):
+                    vectorB_TV[element2-1]+=V1+(V2-V1)*(T_in_PER)/TR
+                elif(t>TD and T_in_PER>=TR and T_in_PER<(TR+PW)):
+                    vectorB_TV[element2-1]+=V2
+                elif(t>TD and T_in_PER>=TR+PW and T_in_PER<(TR+PW+TF)):
+                    vectorB_TV[element2-1]+=V2+(V1-V2)/TF*(T_in_PER-TR-PW)
+                elif(t>TD and T_in_PER>=TR+PW+TF and T_in_PER<PER):
+                    vectorB_TV[element2-1]+=V1
                 
+                #填入matrixA_TV
+                if(str1=="0"):
+                    matrixA_TV[element2-1][place2-1]-=1
+                    matrixA_TV[place2-1][element2-1]-=1
+                elif(str2=="0"):
+                    matrixA_TV[element2-1][place1-1]+=1
+                    matrixA_TV[place1-1][element2-1]+=1  
+                else:
+                    matrixA_TV[element2-1][place1-1]+=1
+                    matrixA_TV[element2-1][place2-1]-=1
+                    matrixA_TV[place1-1][element2-1]+=1
+                    matrixA_TV[place2-1][element2-1]-=1    
             else:#需要修改，給DC電壓源在外面填
                 ##print("xxx")
                 vectorB[element2-1]+=components[comp_number].dc
