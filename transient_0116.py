@@ -201,6 +201,7 @@ C_last=[]
 L_last=[]
 vgs_his=[]
 vds_his=[]
+iti_fail=0
 object_source="non"
 start_V=0
 if(len(mos_device_list)!=0):
@@ -232,10 +233,10 @@ while (t <= end_time):
     X_diff=[]
     vgs_his_temp=vgs_his
     vds_his_temp=vds_his
-
+    iti_fail=0
     #print(t/end_time*100)
     if(count<1):
-        X,check_current,checknode,nonlin_his,vgs_his,vds_his=step_euler(
+        X,check_current,checknode,nonlin_his,vgs_his,vds_his,iti_fail=step_euler(
             L_pass,element1,nonlin_his,matrixA,vectorB,nodelist,C_pass,dic_node
             ,matrix_size,typelist,dic_component,tv_namelist,
             tv_nodelist,element2,components,t,time_step,nonlin_namelist,nonlin_nodelist,
@@ -245,7 +246,7 @@ while (t <= end_time):
         nonlin_his_check=nonlin_his
         vgs_his_check=vgs_his
         vds_his_check=vds_his
-        X,check_current,checknode,nonlin_his,vgs_his,vds_his=step_euler(
+        X,check_current,checknode,nonlin_his,vgs_his,vds_his,iti_fail=step_euler(
             L_pass,element1,nonlin_his,matrixA,vectorB,nodelist,C_pass,dic_node
             ,matrix_size,typelist,dic_component,tv_namelist,
             tv_nodelist,element2,components,t,time_step,nonlin_namelist,nonlin_nodelist,
@@ -325,8 +326,8 @@ while (t <= end_time):
         element2=temp2
         #print(X_diff)
         #print(max(X_diff)," ",i_max)
-        if((max(X_diff)>10**-3 or i_max>=10**-5) and t>0 and time_step/10>(increment/100)):
-            print("fault out",t)
+        if(((max(X_diff)>10**-3 or i_max>=10**-5) and t>0 and time_step/10>(increment/100)) or iti_fail==100):
+            print("fault out",t, " ",time_step)
             t-=time_step
             time_step/=10
             vgs_his=vgs_his_temp

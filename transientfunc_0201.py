@@ -21,6 +21,7 @@ def step_euler(
     #mos====================
     Vt = 0.4
     # W_L = 1/0.18
+    iti_report=0
     Lambda = 0.02  # 為1/VA
     va_n = 1 / Lambda
     va_p = 1 / Lambda
@@ -724,6 +725,7 @@ def step_euler(
                and iti<=100):
                 
                 if(iti==100):
+                    iti_report=100
                     print("iti:　",iti," ",t," v(input): ",1.8*np.sin(t*100*np.pi))
                 iti+=1
                 #生成Non線性元件矩陣A
@@ -764,7 +766,7 @@ def step_euler(
                 iti=0
                 cond=False
                 modified=0
-                return (X_list),check_current,checknode,nonlin_his,vgs_his,vds_his
+                return (X_list),check_current,checknode,nonlin_his,vgs_his,vds_his,iti_report
 def BDF2(L_pass,element1,nonlin_his,matrixA,vectorB,nodelist,C_pass,
          dic_node,matrix_size,typelist,dic_component,tv_namelist,tv_nodelist,
          element2,components,t,time_step,nonlin_namelist,nonlin_nodelist,
