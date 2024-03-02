@@ -39,7 +39,7 @@ def Dc_bias(
     C_ox = epsilon_0 * epsilon_SiO2 / t_ox
     k_n = u_n * C_ox
     k_p=u_p * C_ox
-    print(k_p)
+    #print(k_p)
     result = []
     matrixA = np.zeros((matrix_size, matrix_size))
     matrixA_nonlin = np.zeros((matrix_size, matrix_size))
@@ -63,7 +63,7 @@ def Dc_bias(
     first_print_maxtrix = True
     while  partial <100:
         partial+=1
-        #print(partial/100*100)
+        print("biasing: ",partial/100*100)
         vectorB_mos = np.zeros(matrix_size)
         matrixA_mos = np.zeros((matrix_size, matrix_size))
         iti_time = 0

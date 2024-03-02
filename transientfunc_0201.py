@@ -726,7 +726,7 @@ def step_euler(
                 
                 if(iti==100):
                     iti_report=100
-                    print("iti:　",iti," ",t," v(input): ",1.8*np.sin(t*100*np.pi))
+                    print("iti:　",iti," ",t)
                 iti+=1
                 #生成Non線性元件矩陣A
                 matrixA_Non=np.zeros((matrix_size,matrix_size),dtype=float)

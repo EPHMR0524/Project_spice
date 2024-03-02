@@ -326,7 +326,8 @@ while (t <= end_time):
         element2=temp2
         #print(X_diff)
         #print(max(X_diff)," ",i_max)
-        if(((max(X_diff)>10**-3 or i_max>=10**-5) and t>0 and time_step/10>(increment/100)) or iti_fail==100):
+        x_norm=linalg.norm(X)
+        if(((max(X_diff)>10**-3 or i_max>=10**-5) and t>0 ) or iti_fail==100):
             print("fault out",t, " ",time_step)
             t-=time_step
             time_step/=10
