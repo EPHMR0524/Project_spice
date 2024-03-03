@@ -226,6 +226,8 @@ if(len(mos_device_list)!=0):
     )
 print(vds_his,vgs_his,nonlin_his)
 while (t <= end_time):
+    C_pass_temp=C_pass
+    L_pass_temp=L_pass
     X=[]
     X_BDF=[]
     checknode=[]
@@ -310,6 +312,7 @@ while (t <= end_time):
     #print("step: ",time_step)
     #time_step=new_time_step
     #print("progress: ",t/end_time*100,"%")
+    false_out=0
     if(t>0):
         i_max=0;
         for u in range(len(X_BDF)):
@@ -329,16 +332,18 @@ while (t <= end_time):
         x_norm=linalg.norm(X)
         i_fail_flag=0
         v_fail_flag=0
-        if(((max(X_diff)>10**-3 or i_max>=10**-5) and t>0 ) and iti_fail==100):
+        if(((max(X_diff)>10**-4 or i_max>=10**-6) and t>0 ) and iti_fail==100):
             print("fault out",t, " ",time_step)
             t-=time_step
             time_step/=10
+            C_pass=C_pass_temp
+            L_pass=L_pass_temp
             vgs_his=vgs_his_temp
             vds_his=vds_his_temp
             #new_time_step/=10
             #X=[]
             #X_BDF=[]
-        elif(max(X_diff)<=10**-4 and i_max<10**-6 and t>0 and time_step*10<=increment):
+        elif(max(X_diff)<=10**-5 and i_max<10**-7 and t>0 and time_step*10<=increment):
             time_step*=10
     #print(t,"success out")
     if(len(X)==0):
