@@ -1,5 +1,5 @@
 bridge retic
-vin n1 0 SIN 0 2 50
+vin n1 0 SIN 0 10 50
 d1 n1 n2 diode1
 r1 n2 n3 2k
 c1 n2 n3 1u
