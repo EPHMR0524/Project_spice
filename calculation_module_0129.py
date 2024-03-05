@@ -26,54 +26,10 @@ def ac_analysis(
     freq_step,
     start_freq,
     end_freq,
+    vds_his,
+    vgs_his
 ):
-    # =============================================================================
-    #     element=len(namelist)
-    #     templist=[]
-    #     #將nodelist中元素加入templist以方便後續計算node數
-    #     #templist:唯一暫存容器
-    #     for i in range(element):
-    #         for j in range(2):
-    #             templist.append(nodelist[i][j])
-    #     #刪除重複內容
-    #     #print(templist)
-    #     templist=list(dict.fromkeys(templist))
-    #     #print(templist)
-    #     #矩陣大小變數:matrix_size
-    #     matrix_size=0
-    #     #先算node構成的部分
-    #     for i in range(len(templist)):
-    #         if(templist[i]=="0"):
-    #             continue
-    #         elif(templist[i]!=""):
-    #             matrix_size=matrix_size+1
-    #         else:
-    #             continue
-    #     #設定一個變數用以儲存目前(僅包含第一類元件)的數量
-    #     element2=matrix_size
-    #     #print(element2)
-    #     #print(matrix_size)
-    #     #接著計算第二類元素的部分
-    #     for i in range(element):
-    #         if(namelist[i][0]=="v"):
-    #             matrix_size=matrix_size+1
-    #         elif(namelist[i][0]=="l"):
-    #             matrix_size=matrix_size+1
-    #         else:
-    #             continue
-    #     dic_node={}
-    #     #用來建立dic引數的一個變數:counter
-    #     counter=1
-    #     for i in range(len(templist)):
-    #         #nodename等於0就給dic的值為0
-    #         if(templist[i]=='0'):
-    #             dic_node["0"]=0
-    #         else:
-    #             temp_string=templist[i]
-    #             dic_node[temp_string]=counter
-    #             counter=counter+1
-    #     #print(dic_node)
-    # =============================================================================
+    
     # PARAMETER
     Vd_MAX = 10
     Vt = 0.4
@@ -87,6 +43,7 @@ def ac_analysis(
     epsilon_SiO2 = 3.9  # SiO2相對介電常數
     C_ox = epsilon_0 * epsilon_SiO2 / t_ox
     k_n = u_n * C_ox
+    k_p=u_n * C_ox
     if cmd[1] == "dec":
         # 計算模擬次數(資料數量)
         print("data row:", (np.log10(end_freq) - np.log10(start_freq)) * freq_step + 1)
@@ -133,6 +90,8 @@ def ac_analysis(
     examine_A = []
     j_array = []
     while j <= end:
+        mos_node=[]
+        mos_device=[]
         j_array.append(j)
         # 生成矩陣A
         matrixA = np.zeros((matrix_size, matrix_size), dtype=complex)
@@ -350,17 +309,217 @@ def ac_analysis(
                         matrixA[element2 - 1][element2 - 1] -= (
                             value * 1j * pi * 2 * (8**j)
                         )
+            elif namelist[i][0] == "m":
+                # print()
+                D = nodelist[i][0]
+                G = nodelist[i][1]
+                S = nodelist[i][2]
+                B = nodelist[i][3]
+                
+                place1 = dic_node[D]
+                place2 = dic_node[G]
+                place3 = dic_node[S]
+                place4 = dic_node[B]
+                # 紀錄mos的各節點
+                mos_node.append([D, G, S, B])
+                mos_device.append(i)
             else:
                 continue
+        matrixA_mos = np.zeros((matrix_size, matrix_size), dtype=complex)
+        vectorB_mos = np.zeros(matrix_size)
+        for u in range(len(mos_node)):
+            # 紀錄mos的各節點
+            # mos_node.append([D,G,S,B])
+            place1 = dic_node[mos_node[u][0]]
+            place2 = dic_node[mos_node[u][1]]
+            place3 = dic_node[mos_node[u][2]]
+            place4 = dic_node[mos_node[u][3]]  # voltage==start_V
+            D = mos_node[u][0]
+            G = mos_node[u][1]
+            S = mos_node[u][2]
+            B = mos_node[u][3]
+            #print(mos_node[u][0]," ",mos_node[u][1]," ",mos_node[u][2]," ",mos_node[u][3])
+            # 計算初值firstTime == 
+            a11 = 0
+            a12 = 0
+            b1 = 0
 
+            if namelist[mos_device[u]][1] == "p":
+# =============================================================================
+#                 Vgs = vgs_his[u]
+#                 Vds = vds_his[u]
+# =============================================================================
+                Vgs = vgs_his[u][-1]
+                Vds = vds_his[u][-1]
+                #print(vgs_his," ",vds_his)
+
+                width = unit_symbol(components[mos_device[u]].args["w"])
+                length = unit_symbol(components[mos_device[u]].args["l"])
+                #print(width," ",length," ",Vgs," ",Vds)
+                W_L = width / length
+                
+                # Cutoff
+                if Vgs < Vt:
+
+                    a12 = 0
+                    a11 = sp.exp((Vgs - Vt) / 0.0258528413 - 32.2361913) / 0.0258528413
+                    b1 = -(a11 * 0.0258528413 - a11 * (Vgs))
+                
+                # Triode
+                elif (Vgs - Vt) >= Vds:
+
+                    #print("triode_p",Vgs," ",Vds)
+                    a11 = W_L * k_p * Vds
+                    a12 = W_L * k_p * ((Vgs - Vt) - Vds)
+                    b1 = -(
+                        W_L * k_p * ((Vgs - Vt) * Vds - (Vds) ** 2 / 2)
+                        - a11 * Vgs
+                        - a12 * Vds
+                    )
+
+                # Sat
+                elif (Vgs - Vt) < Vds:
+
+                    #print("sat_p",Vgs," ",Vds)
+                    a11 = (
+                        (1 / 2)
+                        * W_L
+                        * k_p
+                        * (
+                            2 * (Vgs - Vt) * (1 + 1 / va_p * (Vds - (Vgs - Vt)))
+                            - 1 / va_p * (Vgs - Vt) ** 2
+                        )
+                    )
+                    a12 = (1 / 2) * W_L * k_p * 1 / va_p * (Vgs - Vt) ** 2
+                    b1 =-(
+                        (1 / 2)
+                        * W_L
+                        * k_p
+                        * (Vgs - Vt) ** 2
+                        * (1 + 1 / va_p * (Vds - (Vgs - Vt)))
+                        - a11 * Vgs
+                        - a12 * Vds
+                    )
+                    
+            elif namelist[mos_device[u]][1] == "n":
+                #print(vgs_his)
+                Vgs = vgs_his[u][-1]
+                Vds = vds_his[u][-1]
+                #print("checking :",Vgs," ",Vds)
+
+                width = unit_symbol(components[mos_device[u]].args["w"])
+                length = unit_symbol(components[mos_device[u]].args["l"])
+                W_L = width / length
+                
+                # Cutoff
+                if Vgs <= Vt:
+
+                    #print("cutoff")
+                    a12 = 0
+                    a11 = sp.exp((Vgs - Vt) / 0.0258528413 - 32.2361913) / 0.0258528413
+                    b1 = a11 * 0.0258528413 - a11 * (Vgs)
+                
+                # Triode
+                elif (Vgs - Vt) > Vds:
+                    #print("triode")
+
+                    a11 = W_L * k_n * Vds
+                    a12 = W_L * k_n * ((Vgs - Vt) - Vds)
+                    b1 = (
+                        W_L * k_n * ((Vgs - Vt) * Vds - (Vds) ** 2 / 2)
+                        - a11 * Vgs
+                        - a12 * Vds
+                    )
+                
+                # Sat
+                elif (Vgs - Vt) <= Vds:
+                    #print("sat")
+
+                    a11 = (
+                        (1 / 2)
+                        * W_L
+                        * k_n
+                        * (
+                            2 * (Vgs - Vt) * (1 + 1 / va_n * (Vds - (Vgs - Vt)))
+                            - 1 / va_n * (Vgs - Vt) ** 2
+                        )
+                    )
+                    a12 = (1 / 2) * W_L * k_n * 1 / va_n * (Vgs - Vt) ** 2
+                    b1 = (
+                        (1 / 2)
+                        * W_L
+                        * k_n
+                        * (Vgs - Vt) ** 2
+                        * (1 + 1 / va_n * (Vds - (Vgs - Vt)))
+                        - a11 * Vgs
+                        - a12 * Vds
+                    )
+            #print(D," ",G," ",S)
+            if D == "0" and G == "0" and S == "0":
+                
+                pass
+            elif D == "0":
+                if G == "0" and S != "0":
+                    matrixA_mos[place3 - 1][place3 - 1] += a11 + a12
+                    vectorB_mos[place3 - 1] += b1
+                elif S == "0" and G != "0":
+                    matrixA_mos[place2 - 1][place2 - 1] += 0
+                    vectorB_mos[place2 - 1] += 0
+                elif S != "0" and G != "0":
+                    matrixA_mos[place2 - 1][place2 - 1] += 0
+                    matrixA_mos[place2 - 1][place3 - 1] += 0
+                    vectorB_mos[place2 - 1] += 0
+                    matrixA_mos[place3 - 1][place1 - 1] -= a11
+                    matrixA_mos[place3 - 1][place3 - 1] += a11 + a12
+                    vectorB_mos[place3 - 1] += b1
+            elif G == "0":
+                if D == "0" and S != "0":
+                    matrixA_mos[place3 - 1][place3 - 1] += a11 + a12
+                    vectorB_mos[place3 - 1] += b1
+                elif S == "0" and D != "0":
+                    matrixA_mos[place1 - 1][place1 - 1] += a12
+                    vectorB_mos[place1 - 1] -= b1
+                elif S != "0" and D != "0":
+                    matrixA_mos[place1 - 1][place1 - 1] += a12
+                    matrixA_mos[place1 - 1][place3 - 1] -= a11 + a12
+                    vectorB_mos[place1 - 1] -= b1
+                    matrixA_mos[place3 - 1][place1 - 1] -= a12
+                    matrixA_mos[place3 - 1][place3 - 1] += a11 + a12
+                    vectorB_mos[place3 - 1] += b1
+            elif S == "0":
+                if D == "0" and G != "0":
+                    matrixA_mos[place2 - 1][place2 - 1] += 0
+                    vectorB_mos[place2 - 1] += 0
+                elif G == "0" and D != "0":
+                    matrixA_mos[place1 - 1][place1 - 1] += a12  # Change
+                    vectorB_mos[place1 - 1] -= b1
+                elif G != "0" and D != "0":
+                    matrixA_mos[place2 - 1][place1 - 1] += 0
+                    matrixA_mos[place2 - 1][place2 - 1] += 0
+                    vectorB_mos[place2 - 1] += 0
+                    matrixA_mos[place1 - 1][place2 - 1] += a11  # Change
+                    matrixA_mos[place1 - 1][place1 - 1] += a12  # Change  
+                    vectorB_mos[place1 - 1] -= b1
+            else:
+                matrixA_mos[place1 - 1][place2 - 1] += a11
+                matrixA_mos[place1 - 1][place1 - 1] += a12
+                matrixA_mos[place1 - 1][place3 - 1] -= (a11 + a12)
+                vectorB_mos[place1 - 1] -= b1
+                matrixA_mos[place3 - 1][place2 - 1] -= a11
+                matrixA_mos[place3 - 1][place1 - 1] -= a12
+                matrixA_mos[place3 - 1][place3 - 1] += (a11 + a12)
+                vectorB_mos[place3 - 1] += b1
+            
         # A=np.array(matrixA)
         # A=linalg.inv(A)
         # LU解法==========================================
-        A = np.array(matrixA, dtype=complex)
+        matrixA_mix=matrixA+matrixA_mos
+        vectorB_mix=vectorB
+        A = np.array(matrixA_mix, dtype=complex)
         P, L, U = linalg.lu(A)
         # print(L)
         # print(U)
-        B = np.array(vectorB)
+        B = np.array(vectorB_mix)
         Y = linalg.solve_triangular(L, P.T @ B, lower=True)
         X = linalg.solve_triangular(U, Y, lower=False)
         # ===============================================

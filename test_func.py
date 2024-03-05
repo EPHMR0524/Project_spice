@@ -88,7 +88,55 @@ if(cmd[0].lower()=="ac"):
     length=len(freq_step)
     freq_step=unit_symbol(freq_step)
     pi=np.pi
-    times=ac_analysis(templist,element2,element,dic_node,matrix_size,cmd,namelist,nodelist,circuit_name,valuelist,typelist,components,freq_step,start_freq,end_freq)
+    object_source="null"
+    null,vds_his,vgs_his=Dc_bias(
+        templist,
+        element2,
+        element,
+        dic_node,
+        matrix_size,
+        cmd,
+        namelist,
+        nodelist,
+        circuit_name,
+        valuelist,
+        typelist,
+        components,
+        object_source,
+        vgs_his,
+        vds_his,
+        null,
+        0
+    )
+    print(start_freq, " ",end_freq," ",freq_step)
+    print("kkk: ",vds_his," ",vgs_his)
+    #k=str(input("請輸入模擬內容:"))
+    result=[]
+    place=[]
+    dic_result={}
+    times=ac_analysis(
+        templist,
+        place,
+        element2,
+        element,
+        dic_node,
+        matrix_size,
+        cmd,
+        result,
+        namelist,
+        nodelist,
+        circuit_name,
+        valuelist,
+        typelist,
+        components,
+        dic_result,
+        freq_step,
+        start_freq,
+        end_freq,
+        vds_his,
+        vgs_his
+    )
+    #times=ac_analysis(templist,element2,element,dic_node,matrix_size,cmd,namelist,nodelist,circuit_name,valuelist,typelist,components,freq_step,start_freq,end_freq)
 elif(cmd[0].lower()=="dc"):
     cmd_cond=True
     while cmd_cond==True:
