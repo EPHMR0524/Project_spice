@@ -105,7 +105,7 @@ def plot_picture(templist,namelist,times,result,cmd,x):
         plt.plot(x,y)
         if(operator==" "):
             plt.plot(x,z)
-        
+        plt.grid()
         plt.show()
         Continue=input("Continue or not, 1 for continue, 0 for end. ")
         if (Continue=="1"):
@@ -196,7 +196,7 @@ def plot_picture_trans(templist,namelist,result,cmd,x):
         else:
             plt.ylabel(object_value1+operator+object_value2.upper(),fontsize=14)
         plt.title("transient analysis",fontsize=20)
-        plt.plot(x,y)
+        plt.plot(x,y,linewidth=1)
         if(operator==" "):
             plt.plot(x,z)
         plt.grid()

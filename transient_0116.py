@@ -224,7 +224,8 @@ if(len(mos_device_list)!=0):
         nonlin_his,
         start_V
     )
-print(vds_his,vgs_his,nonlin_his)
+#print(vds_his,vgs_his,nonlin_his)
+print("kkk: ",vds_his,"FFF: ",vgs_his)
 while (t <= end_time):
     C_pass_temp=C_pass
     L_pass_temp=L_pass
@@ -236,7 +237,7 @@ while (t <= end_time):
     vgs_his_temp=vgs_his
     vds_his_temp=vds_his
     iti_fail=0
-    #print(t/end_time*100)
+    print(t/end_time*100)
     if(count<1):
         X,check_current,checknode,nonlin_his,vgs_his,vds_his,iti_fail=step_euler(
             L_pass,element1,nonlin_his,matrixA,vectorB,nodelist,C_pass,dic_node
@@ -314,7 +315,7 @@ while (t <= end_time):
     #print("progress: ",t/end_time*100,"%")
     false_out=0
     if(t>0):
-        i_max=0;
+        i_max_diff=0;
         for u in range(len(X_BDF)):
             #print(X_BDF[u]-X[u])
             X_diff.append(X_BDF[u]-X[u])
@@ -323,8 +324,8 @@ while (t <= end_time):
         temp2=element2
         while(element2<matrix_size):
             #print(element2)
-            if(i_max<=abs(X_BDF[element2]-X[element2])):
-                i_max=abs(X_BDF[element2]-X[element2])
+            if(i_max_diff<=abs(X_BDF[element2]-X[element2])):
+                i_max_diff=abs(X_BDF[element2]-X[element2])
             element2+=1
         element2=temp2
         #print(X_diff)
@@ -332,8 +333,20 @@ while (t <= end_time):
         x_norm=linalg.norm(X)
         i_fail_flag=0
         v_fail_flag=0
-        if(((max(X_diff)>10**-4 or i_max>=10**-6) and t>0 ) and iti_fail==100):
-            print("fault out",t, " ",time_step)
+        V_max=0
+        i_max=0
+        temp2=element2
+        while(element2<matrix_size):
+            #print(element2)
+            if(i_max_diff==abs(X_BDF[element2]-X[element2])):
+                i_max=max(abs(X_BDF[element2]),abs((X[element2])))
+            element2+=1
+        element2=temp2
+        for u in range(len(X_BDF)):
+            if(max(X_diff)==abs(X_BDF[u]-X[u])):
+                V_max=max(abs(X_BDF[u]),abs(X_BDF[u]))
+        if(((max(X_diff)>V_max*10**-3 or i_max_diff>=i_max) and t>0 )and iti_fail==100 ):
+            print("fault out",t, " ",time_step)#and iti_fail==100
             t-=time_step
             time_step/=10
             C_pass=C_pass_temp
@@ -343,7 +356,7 @@ while (t <= end_time):
             #new_time_step/=10
             #X=[]
             #X_BDF=[]
-        elif(max(X_diff)<=10**-5 and i_max<10**-7 and t>0 and time_step*10<=increment):
+        elif(max(X_diff)<=10**-4 and i_max<10**-6 and t>0 and time_step*10<=increment):
             time_step*=10
     #print(t,"success out")
     if(len(X)==0):

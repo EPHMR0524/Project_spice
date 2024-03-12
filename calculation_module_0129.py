@@ -363,7 +363,7 @@ def ac_analysis(
 
                     a12 = 0
                     a11 = sp.exp((Vgs - Vt) / 0.0258528413 - 32.2361913) / 0.0258528413
-                    b1 = -(a11 * 0.0258528413 - a11 * (Vgs))
+                    b1 = -(- a11 * (Vgs))
                 
                 # Triode
                 elif (Vgs - Vt) >= Vds:
@@ -372,7 +372,7 @@ def ac_analysis(
                     a11 = W_L * k_p * Vds
                     a12 = W_L * k_p * ((Vgs - Vt) - Vds)
                     b1 = -(
-                        W_L * k_p * ((Vgs - Vt) * Vds - (Vds) ** 2 / 2)
+                        
                         - a11 * Vgs
                         - a12 * Vds
                     )
@@ -392,11 +392,7 @@ def ac_analysis(
                     )
                     a12 = (1 / 2) * W_L * k_p * 1 / va_p * (Vgs - Vt) ** 2
                     b1 =-(
-                        (1 / 2)
-                        * W_L
-                        * k_p
-                        * (Vgs - Vt) ** 2
-                        * (1 + 1 / va_p * (Vds - (Vgs - Vt)))
+                        
                         - a11 * Vgs
                         - a12 * Vds
                     )
@@ -417,7 +413,7 @@ def ac_analysis(
                     #print("cutoff")
                     a12 = 0
                     a11 = sp.exp((Vgs - Vt) / 0.0258528413 - 32.2361913) / 0.0258528413
-                    b1 = a11 * 0.0258528413 - a11 * (Vgs)
+                    b1 = - a11 * (Vgs)
                 
                 # Triode
                 elif (Vgs - Vt) > Vds:
@@ -426,7 +422,7 @@ def ac_analysis(
                     a11 = W_L * k_n * Vds
                     a12 = W_L * k_n * ((Vgs - Vt) - Vds)
                     b1 = (
-                        W_L * k_n * ((Vgs - Vt) * Vds - (Vds) ** 2 / 2)
+                        
                         - a11 * Vgs
                         - a12 * Vds
                     )
@@ -446,11 +442,6 @@ def ac_analysis(
                     )
                     a12 = (1 / 2) * W_L * k_n * 1 / va_n * (Vgs - Vt) ** 2
                     b1 = (
-                        (1 / 2)
-                        * W_L
-                        * k_n
-                        * (Vgs - Vt) ** 2
-                        * (1 + 1 / va_n * (Vds - (Vgs - Vt)))
                         - a11 * Vgs
                         - a12 * Vds
                     )
@@ -522,6 +513,8 @@ def ac_analysis(
         B = np.array(vectorB_mix)
         Y = linalg.solve_triangular(L, P.T @ B, lower=True)
         X = linalg.solve_triangular(U, Y, lower=False)
+        print("A",A)
+        print("B",B)
         # ===============================================
         # 將矩陣及向量清空
         matrixA = np.zeros((matrix_size, matrix_size), dtype=complex)
@@ -1752,7 +1745,12 @@ def Dc_analysis(
             counter = counter + 1
         else:
             continue
-        
+    path='toneg.txt'
+    f=open(path,'w')
+    for i in range (len(result)):
+        lines=[str(x_axis[i])," ",str(result[i][2]),'\n']
+        f.writelines(lines)
+    f.close()
     plot_picture_dc(templist, namelist, times, result, cmd, x_axis)
 
 

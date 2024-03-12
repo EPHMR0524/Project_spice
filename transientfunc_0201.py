@@ -719,14 +719,23 @@ def step_euler(
             if(len(vgs_diff)==0):
                 vgs_diff=[0]
                 vds_diff=[0]
+            ptr_max_vgs=0
+            ptr_max_vds=0
+            for u in range(len(vgs_diff)):
+                if(max(vgs_diff)==vgs_diff[u]):
+                    ptr_max_vgs=u
+                if(max(vds_diff)==vds_diff[u]):
+                    ptr_max_vds=u
+            v_max_vgs=max(abs(vgs_his[ptr_max_vgs][1]),abs(vgs_his[ptr_max_vgs][1]))
+            v_max_vds=max(abs(vds_his[ptr_max_vds][1]),abs(vds_his[ptr_max_vds][1]))
+            #print(max(vgs_diff)," x ",max(vds_diff)," ",iti)
             if((iti==0 or modified==1 or max(non_diff)>10**(-6) or 
                 abs(min(non_diff))>10**(-6)
-                or max(vgs_diff)>10**(-6) or max(vds_diff)>10**(-6))
+                or max(vgs_diff)> v_max_vgs*10**-3 or max(vds_diff)>v_max_vds*10**-3)
                and iti<=100):
-                
                 if(iti==100):
                     iti_report=100
-                    print("iti:　",iti," ",t)
+                    print("iti:　",iti," ",max(vgs_diff)," ",max(vds_diff))
                 iti+=1
                 #生成Non線性元件矩陣A
                 matrixA_Non=np.zeros((matrix_size,matrix_size),dtype=float)
@@ -1481,10 +1490,19 @@ def BDF2(L_pass,element1,nonlin_his,matrixA,vectorB,nodelist,C_pass,
             if(len(vgs_diff)==0):
                 vgs_diff=[0]
                 vds_diff=[0]
-            
+            ptr_max_vgs=0
+            ptr_max_vds=0
+            for u in range(len(vgs_diff)):
+                if(max(vgs_diff)==vgs_diff[u]):
+                    ptr_max_vgs=u
+                if(max(vds_diff)==vds_diff[u]):
+                    ptr_max_vds=u
+            v_max_vgs=max(abs(vgs_his[ptr_max_vgs][1]),abs(vgs_his[ptr_max_vgs][1]))
+            v_max_vds=max(abs(vds_his[ptr_max_vds][1]),abs(vds_his[ptr_max_vds][1]))
+            print(max(vgs_diff)," x ",max(vds_diff)," ",iti)
             if((iti==0 or modified==1 or max(non_diff)>10**(-6) or 
                 abs(min(non_diff))>10**(-6)
-                or max(vgs_diff)>=10**(-6) or max(vds_diff)>=10**(-6))
+                or max(vgs_diff)> v_max_vgs*10**-3 or max(vds_diff)>v_max_vds*10**-3)
                and iti<=100):
                 #
                 

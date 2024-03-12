@@ -11,5 +11,5 @@ Mn2 E p4 Vss Vss n_18 w=0.8u l=0.4u
 Mn3 F E Vss Vss n_18 w=0.8u l=0.4u
 Vs Vss 0 dc -15
 VVDD VDD 0 dc 15
-Vin A 0 sin 0 1 1000
+Vin A 0 sin 0 2 50
 .end
