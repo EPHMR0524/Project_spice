@@ -158,8 +158,11 @@ def Dc_bias(
                         vectorB[element2 - 1] += 0
                 elif namelist[i] == object_source:
                     vectorB[element2 - 1] += start_V*(partial/1000)
-                elif components[i].pulse[0] != 0:
-                    vectorB[element2 - 1] += components[i].pulse[0]*(partial/1000)
+                elif (components[i].pulse[0] != 0 and components[i].pulse[2] != 0) or (components[i].pulse[1] != 0 and components[i].pulse[2] == 0):
+                    if(components[i].pulse[2] == 0):    
+                        vectorB[element2 - 1] += components[i].pulse[1]*(partial/1000)
+                    else:
+                        vectorB[element2 - 1] += components[i].pulse[0]*(partial/1000)
                 else:
                     vectorB[element2 - 1] += 0
                 # 填入matrixA

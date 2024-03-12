@@ -36,48 +36,38 @@ Mn1 v2 b VSS VSS n_18 w=0.4u l=0.2u
 .ends
 
 .subckt DFF CLK D Q Q_bar VDD VSS
-xinv D D_inv VDD VSS inv
-xinv2 CLK CLK_inv VDD VSS inv
+Xinv D D_inv VDD VSS inv
+Xinv2 CLK CLK_inv VDD VSS inv
 
-xnand1 D CLK_inv a1 VDD VSS nand
-xnand2 D_inv CLK_inv a2 VDD VSS nand
-xnand3 a1 R S VDD VSS nand
-xnand4 a2 S R VDD VSS nand
+Xnand1 D CLK_inv a1 VDD VSS nand
+Xnand2 D_inv CLK_inv a2 VDD VSS nand
+Xnand3 a1 R S VDD VSS nand
+Xnand4 a2 S R VDD VSS nand
 
-xnand5 S CLK a3 VDD VSS nand
-xnand6 R CLK a4 VDD VSS nand
-xnand7 a3 Q_bar Q VDD VSS nand
+Xnand5 S CLK a3 VDD VSS nand
+Xnand6 R CLK a4 VDD VSS nand
+Xnand7 a3 Q_bar Q VDD VSS nand
 xnand8 a4 Q Q_bar VDD VSS nand
 .ends
 
-
-
-
-*XDFF_0 CLK D_0 Q_0 D_0 VDD VSS DFF
-
-
-*counter=========================================
+*counter
 
 XDFF_0 CLK D_0 Q_0 D_0 VDD VSS DFF
 
-*Xinv1 Q_0 Q_bar VDD VSS inv
 
-XDFF_1 Q_0 D_1 Q_1 D_1 VDD VSS DFF
+*XDFF_1 Q_0 D_1 Q_1 D_1 VDD VSS DFF
 
-*Xinv2 Q_1 Q_bar_1 VDD VSS inv
 
-XDFF_2 Q_1 D_2 Q_2 D_2 VDD VSS DFF
+*XDFF_2 Q_1 D_2 Q_2 D_2 VDD VSS DFF
 
-*Xinv3 Q_2 Q_bar_2 VDD VSS inv
 
-XDFF_3 Q_2 D_3 Q_3 D_3 VDD VSS DFF
+*XDFF_3 Q_2 D_3 Q_3 D_3 VDD VSS DFF
 
-*Xinv4 Q_3 Q_bar_3 VDD VSS inv
 
-*counter=========================================
+*counter
 
 
 VD VDD 0 dc 2
 VS VSS 0 dc 0
-Vclk CLK 0 pulse 0 2 0m 0m 0m 50m 100m 0
+Vclk CLK 0 pulse 0 2 50m 0m 0m 50m 100m 0
 .end

@@ -9,7 +9,7 @@ def add_prefix(line: str, params):
     """將内部元件加上子元件名前綴"""
     # 將傳入的 line 字符串分割成一個列表，取第一個字符
     element = line.split()
-    comp = element[0][0]
+    comp = element[0][0].upper()
 
     # 如果調用其他子電路，檢查所有參數
     if comp == "X":
@@ -88,7 +88,7 @@ def parse_program(program: str) -> tuple[Func, list[str]]:
 
 def expand_line(line: str, functions: Func) -> str:
     # 如果不是子電路，直接返回
-    if not line.startswith("X"):
+    if not line.upper().startswith("X"):
         return line
 
     line_expand = []
@@ -128,6 +128,6 @@ def link_program(program):
 
 if __name__ == "__main__":
     file_name = input("file name: ")
-    with open(r"C:\Users\USER\Desktop\project_spice\netlist"+ "\\" + file_name, "r") as f:
+    with open(file_name, "r") as f:
         program = f.read()
     print(link_program(program))
