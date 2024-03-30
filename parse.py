@@ -8,6 +8,7 @@ def parse_args(args: list[str]) -> dict:
     for arg in args:
         arg = arg.split("=")
         if len(arg) == 1:
+            #print(arg)
             raise ValueError("args must be key=value")
         kargs[arg[0]] = arg[1]
     return kargs

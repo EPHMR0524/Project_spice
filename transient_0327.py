@@ -96,9 +96,9 @@ for i in range(len(typelist)):
 C_pass=[]
 L_pass=[]
 for i in range(C_total):
-    C_pass.append([0])
+    C_pass.append([])
 for i in range(L_total):
-    L_pass.append([0])
+    L_pass.append([])
 #創建component的dic
 dic_component={}
 tinv_namelist=[]
@@ -203,9 +203,10 @@ vgs_his=[]
 vds_his=[]
 iti_fail=0
 object_source="non"
+X0=[]
 start_V=0
 if(len(mos_device_list)!=0):
-    nonlin_his,vds_his,vgs_his=Dc_bias(
+    nonlin_his,vds_his,vgs_his,C_pass,L_pass,X0=Dc_bias(
         templist,
         element2,
         element,
@@ -222,10 +223,12 @@ if(len(mos_device_list)!=0):
         vgs_his,
         vds_his,
         nonlin_his,
-        start_V
+        start_V,
+        C_pass,
+        L_pass
     )
+    print("time ",0,"voltage on cap: ",C_pass)
 #print(vds_his,vgs_his,nonlin_his)
-print("kkk: ",vds_his,"FFF: ",vgs_his)
 #t+=time_step
 while (t <= end_time):
     C_pass_temp=C_pass
@@ -239,15 +242,18 @@ while (t <= end_time):
     vds_his_temp=vds_his
     iti_fail=0
     #print(t/end_time*100)
-    if(count<1):
+    if(t==0):
+        #print("time ",t,"voltage on cap: ",C_pass)
         X,check_current,checknode,nonlin_his,vgs_his,vds_his,iti_fail=step_euler(
             L_pass,element1,nonlin_his,matrixA,vectorB,nodelist,C_pass,dic_node
             ,matrix_size,typelist,dic_component,tv_namelist,
             tv_nodelist,element2,components,t,time_step,nonlin_namelist,nonlin_nodelist,
             mos_device_list,mos_device_node,vgs_his,vds_his)
+        #X=X0
         print(X)
     else:
         #print("III")
+        #print("time ",t,"voltage on cap: ",C_pass)
         nonlin_his_check=nonlin_his
         vgs_his_check=vgs_his
         vds_his_check=vds_his
@@ -256,6 +262,8 @@ while (t <= end_time):
             ,matrix_size,typelist,dic_component,tv_namelist,
             tv_nodelist,element2,components,t,time_step,nonlin_namelist,nonlin_nodelist,
             mos_device_list,mos_device_node,vgs_his,vds_his)
+        if(t<=20*10**-6):
+            print(X[-1]," ",t)
         X_BDF=BDF2(L_pass,element1,nonlin_his_check,matrixA,vectorB,nodelist,
                    C_pass,dic_node,matrix_size,typelist,dic_component,
                    tv_namelist,tv_nodelist,element2,components,t,
@@ -275,46 +283,30 @@ while (t <= end_time):
         #check_current=[element2-1]
         #填入matrixA
         
-        if(count<1):
-            if(str1=="0"):
-                C_pass[i].append((-X[place2-1]))
-                C_last.append((-X[place2-1]))
-            elif(str2=="0"):
-                C_pass[i].append((X[place1-1]))
-                C_last.append((X[place1-1]))
-            else:
-                C_pass[i].append((X[place1-1]-X[place2-1]))
-                C_last.append((X[place1-1]-X[place2-1]))
+        
+        if(str1=="0"):
+            temp=C_pass[i][-1]
+            C_pass[i][0]=temp
+            C_pass[i][1]=((-X[place2-1]))
+        elif(str2=="0"):
+            temp=C_pass[i][-1]
+            C_pass[i][0]=temp
+            C_pass[i][1]=((X[place1-1]))
         else:
-            if(str1=="0"):
-                temp=C_pass[i][-1]
-                C_pass[i][0]=temp
-                C_pass[i][1]=((-X[place2-1]))
-                C_last[i]=temp
-            elif(str2=="0"):
-                temp=C_pass[i][-1]
-                C_pass[i][0]=temp
-                C_pass[i][1]=((X[place1-1]))
-                C_last[i]=temp
-            else:
-                temp=C_pass[i][-1]
-                C_pass[i][0]=temp
-                C_pass[i][1]=((X[place1-1]-X[place2-1]))
-                C_last[i]=temp
+            temp=C_pass[i][-1]
+            C_pass[i][0]=temp
+            C_pass[i][1]=((X[place1-1]-X[place2-1]))
     #存L
-    #print(check_current)
+    #print("time ",t,"voltage on cap: ",C_pass)
     
     for i in range(len(check_current)):
-        if(count<1):
-            L_pass[i].append(X[check_current[i]])
-            L_last.append(X[check_current[i]])
-        else:
-            L_pass[i][0]=L_pass[i][-1]
-            L_pass[i][1]=(X[check_current[i]])
-            L_last.append(X[check_current[i]])
+    
+
+        L_pass[i][0]=L_pass[i][-1]
+        L_pass[i][1]=(X[check_current[i]])
     #print("step: ",time_step)
     #time_step=new_time_step
-    #print("progress: ",t/end_time*100,"%")
+    print("progress: ",t/end_time*100,"%"," iti times: ",iti_fail)
     false_out=0
     if(t>0):
         i_max_diff=0;
@@ -347,7 +339,7 @@ while (t <= end_time):
         for u in range(len(X_BDF)):
             if(max(X_diff)==abs(X_BDF[u]-X[u])):
                 V_max=max(abs(X_BDF[u]),abs(X_BDF[u]))
-        if(((max(X_diff)>V_max*10**-3 or i_max_diff>=i_max) and t>0 ) and  iti_fail==100 ):
+        if((((max(X_diff)>V_max*10**-3 and max(X_diff)>10**-6) or i_max_diff>=i_max) and t>0 ) and  iti_fail==101 ):
             print("fault out",t, " ",time_step)#and iti_fail==100
             t-=time_step
             time_step/=10

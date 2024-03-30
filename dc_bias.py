@@ -23,8 +23,12 @@ def Dc_bias(
     vgs_his,
     vds_his,
     x_0,
-    start_V
+    start_V,
+    C_pass,
+    L_pass
 ):
+    checknode=[]
+    check_current=[]
     # PARAMETER
     Vt = 0.4
     # W_L = 1/0.18
@@ -99,6 +103,10 @@ def Dc_bias(
             # 填入電容的stamp
             # 填入矩陣A的部分
             elif namelist[i][0] == "c":
+                str1 = nodelist[i][0]
+                str2 = nodelist[i][1]
+                if(partial==0):
+                    checknode.append([str1,str2])
                 pass
 
             # 填入電流源的stamp
@@ -158,11 +166,15 @@ def Dc_bias(
                         vectorB[element2 - 1] += 0
                 elif namelist[i] == object_source:
                     vectorB[element2 - 1] += start_V*(partial/1000)
-                elif (components[i].pulse[0] != 0 and components[i].pulse[2] != 0) or (components[i].pulse[1] != 0 and components[i].pulse[2] == 0):
+                elif (components[i].pulse[6] != 0 ):
+                    #print("V2",components[i].pulse[1]*(partial/1000))
+                    #vectorB[element2 - 1] += components[i].pulse[0]*(partial/1000)
                     if(components[i].pulse[2] == 0):    
-                        vectorB[element2 - 1] += components[i].pulse[1]*(partial/1000)
+                        vectorB[element2 - 1] += components[i].pulse[0]*(partial/1000)
+                        print("V2",components[i].pulse[1]*(partial/1000))
                     else:
                         vectorB[element2 - 1] += components[i].pulse[0]*(partial/1000)
+                        print("V1",components[i].pulse[0]*(partial/1000))
                 else:
                     vectorB[element2 - 1] += 0
                 # 填入matrixA
@@ -188,6 +200,8 @@ def Dc_bias(
                 # 用place去找dic中nodename對應值
                 place1 = dic_node[str1]
                 place2 = dic_node[str2]
+                if(partial==0):
+                    check_current.append(element2-1)
                 # 填入matrixA
                 if str1 == "0":
                     matrixA[element2 - 1][place2 - 1] -= 1
@@ -588,7 +602,7 @@ def Dc_bias(
                     matrixA_mos[place2 - 1][place2 - 1] += 0
                     vectorB_mos[place2 - 1] += 0
                 elif G == "0" and D != "0":
-                    matrixA_mos[place1 - 1][place2 - 1] += a11  # Change
+                    matrixA_mos[place1 - 1][place1 - 1] += a12  # Change
                     vectorB_mos[place1 - 1] -= b1
                 elif G != "0" and D != "0":
                     matrixA_mos[place2 - 1][place1 - 1] += 0
@@ -624,7 +638,7 @@ def Dc_bias(
             condition = False
             matrixA_mix = matrixA + matrixA_nonlin + matrixA_mos+matrixA_mask
             vectorB_mix = vectorB + vectorB_nonlin + vectorB_mos
-            
+            #print(matrixA_mix)
             # 歸零非線性元素矩陣
             matrixA_nonlin = np.zeros((matrix_size, matrix_size))
             vectorB_nonlin = np.zeros(matrix_size)
@@ -692,6 +706,7 @@ def Dc_bias(
             # 解線性系統
             A = np.array(matrixA_mix)
             #print("A: ",A)
+            #print(max(A[0]))
             # print(A)
             P, L, U = linalg.lu(A)
             # print(L)
@@ -929,7 +944,7 @@ def Dc_bias(
 # =============================================================================
             if ((len(x_0his) == 1 or (
                 max(x_0diff) >= 10 ** (-6) or abs(min(x_0diff)) >= 10 ** (-6)
-                or max(vgs_diff)>=v_max_vgs*10**-3 or max(vds_diff)>=v_max_vds*10**-3) 
+                or max(vgs_diff)>=v_max_vgs*10**-6 or max(vds_diff)>=v_max_vds*10**-6) 
                     and iti_time<100
             )) :
                 
@@ -1102,7 +1117,7 @@ def Dc_bias(
                             matrixA_mos[place2 - 1][place2 - 1] += 0
                             vectorB_mos[place2 - 1] += 0
                         elif G == "0" and D != "0":
-                            matrixA_mos[place1 - 1][place2 - 1] += a11  # Change
+                            matrixA_mos[place1 - 1][place1 - 1] += a12 # Change
                             vectorB_mos[place1 - 1] -= b1
                         elif G != "0" and D != "0":
                             matrixA_mos[place2 - 1][place1 - 1] += 0
@@ -1165,6 +1180,7 @@ def Dc_bias(
                 #print(x_0his)
                 x_0 = []
                 x_0his = []
+                print(iti_time,end=" ")
                 # result.append(X_list[-1])
                 #print("end_iti 1: ",vgs_his)
                 for u in range(len(mos_node)):
@@ -1344,11 +1360,40 @@ def Dc_bias(
             counter=counter+1
         else:
             continue
-    print(dic_result)
-    print(len(result))
+    #存C
+
+    print(dic_result)   
     print("dc bias",result[-1])
+    for i in range(len(checknode)):
+        str1=checknode[i][0]
+        str2=checknode[i][1]
+        #用place去找dic中nodename對應值
+        place1=dic_node[str1]
+        place2=dic_node[str2]
+        #print(i," : ",str1," ",str2," ",place1," ",place2)
+        #check_current=[element2-1]
+        #填入matrixA
+        res=result[-1]
+        #print(res)
+        if(str1=="0"):
+            print(i," : ",str1," ",str2," ",place1," ",place2)
+            print("ccap voltage: ",-result[-1][place2-1])
+            C_pass[i]=[-result[-1][place2-1],-result[-1][place2-1]]
+        elif(str2=="0"):
+            print(i," : ",str1," ",str2," ",place1," ",place2)
+            print("ccap voltage: ",result[-1][place1-1])
+            C_pass[i]=[result[-1][place1-1],result[-1][place1-1]]
+        else:
+            C_pass[i]=[result[-1][place1-1]-res[place2-1],result[-1][place1-1]-res[place2-1]]
+    #存L
+    #print(check_current)
     
-    return x_0,vds_his,vgs_his
+    for i in range(len(check_current)):
+        res=result[len(result)-1]
+        L_pass[i]=[0,res[check_current[i]]]
+
+    
+    return x_0,vds_his,vgs_his,C_pass,L_pass,result[-1]
 
 
 # def tran_analysis(templist,element2,element,dic_node,matrix_size,cmd,namelist,nodelist,circuit_name,valuelist,typelist,components,V_step,start_V,end_V,object_source):

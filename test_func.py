@@ -182,6 +182,7 @@ elif(cmd[0].lower()=="dc"):
         start_V
     )
     #sweeping
+    
     Dc_analysis(templist,element2,element,dic_node,matrix_size,cmd,namelist,nodelist,circuit_name,valuelist,typelist,components,V_step,start_V,end_V,object_source,vds_his,vgs_his)
 else:
     print("開發中!!!!")

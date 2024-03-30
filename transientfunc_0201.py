@@ -77,6 +77,7 @@ def step_euler(
             if(str1=="0"):
                 vectorB_TV[place2-1]-=C_pass[C_pointer][-1]*value/time_step
             elif(str2=="0"):
+                #print(C_pass[C_pointer])
                 vectorB_TV[place1-1]+=C_pass[C_pointer][-1]*value/time_step
             else:
                 vectorB_TV[place1-1]+=C_pass[C_pointer][-1]*value/time_step
@@ -439,7 +440,7 @@ def step_euler(
                     if D == "0" and G != "0":
                         pass
                     elif G == "0" and D != "0":
-                        matrixA_mos[place1 - 1][place2 - 1] += a12  # Change
+                        matrixA_mos[place1 - 1][place1 - 1] += a12  # Change
                         vectorB_mos[place1 - 1] -= b1
                     elif G != "0" and D != "0":
                         matrixA_mos[place1 - 1][place2 - 1] += a11  # Change
@@ -461,7 +462,10 @@ def step_euler(
             matrixA_mix=matrixA_TV+matrixA_Non+matrixA+matrixA_mask+matrixA_mos
             vectorB_mix=vectorB+vectorB_Non+vectorB_TV+vectorB_mos
             A=np.array(matrixA_mix,dtype=float)
-            ##print("matrixA",A)
+# =============================================================================
+#             if(t==0):
+#                 print("matrixA",A)
+# =============================================================================
             
             condition_number=np.linalg.cond(A)
             ##print("cond: ",condition_number)
@@ -731,12 +735,11 @@ def step_euler(
             #print(max(vgs_diff)," x ",max(vds_diff)," ",iti)
             if((iti==0 or modified==1 or max(non_diff)>10**(-6) or 
                 abs(min(non_diff))>10**(-6)
-                or max(vgs_diff)> v_max_vgs*10**-3 or max(vds_diff)>v_max_vds*10**-3)
+                or max(vgs_diff)> v_max_vgs*10**-6 or max(vds_diff)>v_max_vds*10**-6)
                and iti<=100):
-                if(iti==100):
-                    iti_report=100
-                    print("iti:　",iti," ",max(vgs_diff)," ",max(vds_diff))
+                
                 iti+=1
+                iti_report=iti
                 #生成Non線性元件矩陣A
                 matrixA_Non=np.zeros((matrix_size,matrix_size),dtype=float)
                 #生成Non線性元件矩陣B
@@ -1211,7 +1214,7 @@ def BDF2(L_pass,element1,nonlin_his,matrixA,vectorB,nodelist,C_pass,
                     if D == "0" and G != "0":
                         pass
                     elif G == "0" and D != "0":
-                        matrixA_mos[place1 - 1][place2 - 1] += a12  # Change
+                        matrixA_mos[place1 - 1][place1 - 1] += a12  # Change
                         vectorB_mos[place1 - 1] -= b1
                     elif G != "0" and D != "0":
                         matrixA_mos[place1 - 1][place2 - 1] += a11  # Change
@@ -1499,10 +1502,10 @@ def BDF2(L_pass,element1,nonlin_his,matrixA,vectorB,nodelist,C_pass,
                     ptr_max_vds=u
             v_max_vgs=max(abs(vgs_his[ptr_max_vgs][1]),abs(vgs_his[ptr_max_vgs][1]))
             v_max_vds=max(abs(vds_his[ptr_max_vds][1]),abs(vds_his[ptr_max_vds][1]))
-            print(max(vgs_diff)," x ",max(vds_diff)," ",iti)
+            #print(max(vgs_diff)," x ",max(vds_diff)," ",iti)
             if((iti==0 or modified==1 or max(non_diff)>10**(-6) or 
                 abs(min(non_diff))>10**(-6)
-                or max(vgs_diff)> v_max_vgs*10**-3 or max(vds_diff)>v_max_vds*10**-3)
+                or max(vgs_diff)> v_max_vgs*10**-6 or max(vds_diff)>v_max_vds*10**-6)
                and iti<=100):
                 #
                 
