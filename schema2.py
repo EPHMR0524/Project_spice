@@ -1,3 +1,4 @@
+#from __future__ import annotations
 from pydantic import BaseModel, field_validator
 from utils import unit_symbol
 
@@ -47,7 +48,7 @@ class Current(ComponentBase):
     @classmethod
     def sin_unit_conversion(cls, sin: list[float]) -> list[float]:
         return [unit_symbol(v) for v in sin] + [0.0] * (6 - len(sin))
-
+    
     @field_validator("pulse", mode="before")
     @classmethod
     def pulse_unit_conversion(cls, pulse: list[float]) -> list[float]:
@@ -60,11 +61,8 @@ class Voltage(ComponentBase):
     dc: float = 0.0
     pulse: list[float] = [0.0] * 8
     sin: list[float] = [0.0] * 6
-    pwl: list[tuple[float, float]] = []
-    r: float = 0.0
-    td: float = 0.0
-
-    @field_validator("ac", "dc", "r", "td", mode="before")
+    pwl: list[float]=[]
+    @field_validator("ac", "dc", mode="before")
     @classmethod
     def unit_conversion(cls, v: float) -> float:
         return unit_symbol(v)
@@ -73,19 +71,15 @@ class Voltage(ComponentBase):
     @classmethod
     def sin_unit_conversion(cls, sin: list[float]) -> list[float]:
         return [unit_symbol(v) for v in sin] + [0.0] * (6 - len(sin))
-
+    
     @field_validator("pulse", mode="before")
     @classmethod
     def pulse_unit_conversion(cls, pulse: list[float]) -> list[float]:
         return [unit_symbol(v) for v in pulse] + [0.0] * (8 - len(pulse))
-
-    @field_validator("pwl", mode="before")
-    @classmethod
-    def pwl_unit_conversion(
-        cls, pwl: list[tuple[float, float]]
-    ) -> list[tuple[float, float]]:
-        return [(unit_symbol(t), unit_symbol(v)) for t, v in pwl]
-
+        #V1 V2 TD TR TF PW PER NP
+    def pwl_unit_conversion(cls, pulse: list[float]) -> list[float]:
+        
+        return [unit_symbol(v) for v in pulse] + [0.0] * (8 - len(pulse))
 
 class Diode(ComponentBase):
     type_: str = "D"

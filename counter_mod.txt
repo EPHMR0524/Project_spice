@@ -3,6 +3,7 @@
 Mp0 output input VDD VDD p_18 w=0.8u l=0.2u
 Mn0 output input VSS VSS n_18 w=0.4u l=0.2u
 c1 output 0 1n
+r2 output 0 100meg
 .ends
 
 .subckt or a b out VDD VSS
@@ -12,6 +13,7 @@ Mn0 out_n a VSS VSS n_18 w=0.4u l=0.2u
 Mn1 out_n b VSS VSS n_18 w=0.4u l=0.2u
 Xinv out_n out VDD VSS inv
 c1 out 0 1n
+r2 out 0 100meg
 .ends
 
 .subckt xor a b out VDD VSS
@@ -26,6 +28,7 @@ Mn1 n1 b_not VSS VSS n_18 w=0.4u l=0.2u
 Mn2 out a n2 VSS n_18 w=0.4u l=0.2u
 Mn3 n2 b VSS VSS n_18 w=0.4u l=0.2u
 c1 out 0 3n
+r2 out 0 100meg
 .ends
 
 .subckt nand a b out VDD VSS
@@ -34,7 +37,7 @@ Mp1 out b VDD VDD p_18 w=0.8u l=0.2u
 Mn0 out a v2 VSS n_18 w=0.4u l=0.2u
 Mn1 v2 b VSS VSS n_18 w=0.4u l=0.2u
 c1 out 0 0.1n
-
+r2 out 0 100meg
 .ends
 
 .subckt and a b out VDD VSS
@@ -44,6 +47,7 @@ Mn0 out_not a v2 VSS n_18 w=0.4u l=0.2u
 Mn1 v2 b VSS VSS n_18 w=0.4u l=0.2u
 Xinv out_not out VDD VSS inv 
 c1 out 0 1n
+r2 out 0 100meg
 .ends
 
 .subckt DFF CLK D Q Q_bar VDD VSS
@@ -58,11 +62,11 @@ Xnand6 R CLK a4 VDD VSS nand
 Xnand7 a3 Q_bar Q VDD VSS nand
 xnand8 a4 Q Q_bar VDD VSS nand
 c1 Q 0 1n
-*c2 Q_bar 0 1n
+c2 Q_bar 0 1n
 *c3 R 0 10n
 *c4 S 0 10n
-r1 Q 0 1t
-r2 Q_bar 0 1t
+r1 Q 0 100meg
+r2 Q_bar 0 100meg
 .ends
 
 *counter

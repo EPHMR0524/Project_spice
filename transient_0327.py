@@ -1,5 +1,5 @@
 from utils import unit_symbol, plot_picture,plot_picture_trans
-from parse import parse
+from new_parser import parse
 from transientfunc_0201 import step_euler,BDF2
 from dc_bias import Dc_bias
 #from dc_biasing import Dc_bias
@@ -16,14 +16,11 @@ if __name__ == "__main__":#當此在主程式可用
     typelist=[c.type_ for c in components]
     nodelist = [c.nodes for c in components]
     valuelist = [c.value for c in components]
-# =============================================================================
-#     print(circuit_name)
-#     print(namelist)
-#     print(nodelist)
-#     print(valuelist)
-#     for component in components:
-#         print(component) trans
-# =============================================================================
+    print(circuit_name)
+    print(namelist)
+    print(nodelist)
+    print(valuelist)
+
 #===========================================
 #構成矩陣
 #step1:找除了0以外的有幾個node
@@ -243,7 +240,16 @@ while (t <= end_time):
     iti_fail=0
     #print(t/end_time*100)
     if(t==0):
+        
         #print("time ",t,"voltage on cap: ",C_pass)
+        listtest=[L_pass,element1,nonlin_his,matrixA,vectorB,nodelist,C_pass,dic_node
+        ,matrix_size,typelist,dic_component,tv_namelist,
+        tv_nodelist,element2,components,t,time_step,nonlin_namelist,nonlin_nodelist,
+        mos_device_list,mos_device_node,vgs_his,vds_his]
+        print(len(listtest))
+        for u in range(len(listtest)):
+            if listtest[u] is not None:
+                print(listtest[u]," ",u)
         X,check_current,checknode,nonlin_his,vgs_his,vds_his,iti_fail=step_euler(
             L_pass,element1,nonlin_his,matrixA,vectorB,nodelist,C_pass,dic_node
             ,matrix_size,typelist,dic_component,tv_namelist,
@@ -339,8 +345,8 @@ while (t <= end_time):
         for u in range(len(X_BDF)):
             if(max(X_diff)==abs(X_BDF[u]-X[u])):
                 V_max=max(abs(X_BDF[u]),abs(X_BDF[u]))
-        if((((max(X_diff)>V_max*10**-3 and max(X_diff)>10**-6) or i_max_diff>=i_max) and t>0 ) and  iti_fail==101 ):
-            print("fault out",t, " ",time_step)#and iti_fail==100
+        if((((max(X_diff)>V_max*10**-3 and max(X_diff)>10**-6) or i_max_diff>=i_max) and t>0 ) and  iti_fail==101 and time_step/10>10**-15):
+            print("fault out",t, " ",time_step," ",max(X_diff)," ",V_max*10**-3)#and iti_fail==100
             t-=time_step
             time_step/=10
             C_pass=C_pass_temp
@@ -350,7 +356,8 @@ while (t <= end_time):
             #new_time_step/=10
             #X=[]
             #X_BDF=[]
-        elif(max(X_diff)<=V_max*10**-3 and i_max_diff<i_max and t>0 and time_step*10<=increment):
+            #max(X_diff)<=V_max*10**-3 and i_max_diff<i_max and t>0
+        elif( (((max(X_diff)>V_max*10**-3 and max(X_diff)>10**-6)and i_max_diff<i_max and t>0) and iti_fail<=1) and time_step*10<=increment):
             print("revive time step")
             time_step*=10
     #print(t,"success out")
@@ -396,5 +403,5 @@ for i in range(len(result)):
     f.writelines(string)
     #f.write("")
 f.close()
-plot_picture_trans(templist,namelist,result,cmd,x)
+plot_picture_trans(templist,namelist,result,cmd,x,circuit_name)
 print("~bye")

@@ -45,6 +45,8 @@ def parse_VandI(line: list[str]) -> Voltage | Current:
                else:
                    args[line[p]] = line[p + 1 : p+i]
                p+=i
+
+                
             else:
                 args[line[p]] = line[p + 1]
                 p += 2

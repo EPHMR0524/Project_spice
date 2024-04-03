@@ -65,9 +65,9 @@ def Dc_bias(
     partial=-1
     firstTime = True
     first_print_maxtrix = True
-    while  partial <1000:
+    while  partial <100:
         partial+=1
-        print("biasing: ",partial/1000*100)
+        print("biasing: ",partial/100*100)
         vectorB_mos = np.zeros(matrix_size)
         matrixA_mos = np.zeros((matrix_size, matrix_size))
         iti_time = 0
@@ -123,12 +123,12 @@ def Dc_bias(
                 if components[i].dc != 0:
                     if namelist[i] != object_source:
                         if str1 == "0":
-                            vectorB[place2 - 1] += value*partial/1000
+                            vectorB[place2 - 1] += value*partial/100
                         elif str2 == "0":
-                            vectorB[place1 - 1] -= value*partial/1000
+                            vectorB[place1 - 1] -= value*partial/100
                         else:
-                            vectorB[place2 - 1] += value*partial/1000
-                            vectorB[place1 - 1] -= value*partial/1000
+                            vectorB[place2 - 1] += value*partial/100
+                            vectorB[place1 - 1] -= value*partial/100
                     else:
                         if str1 == "0":
                             vectorB[place2 - 1] += 0
@@ -161,20 +161,22 @@ def Dc_bias(
                 # 填入vectorB 
                 if components[i].dc != 0:
                     if namelist[i] != object_source:
-                        vectorB[element2 - 1] += value*(partial/1000)
+                        vectorB[element2 - 1] += value*(partial/100)
                     else:
                         vectorB[element2 - 1] += 0
                 elif namelist[i] == object_source:
-                    vectorB[element2 - 1] += start_V*(partial/1000)
+                    vectorB[element2 - 1] += start_V*(partial/100)
                 elif (components[i].pulse[6] != 0 ):
                     #print("V2",components[i].pulse[1]*(partial/1000))
                     #vectorB[element2 - 1] += components[i].pulse[0]*(partial/1000)
                     if(components[i].pulse[2] == 0):    
-                        vectorB[element2 - 1] += components[i].pulse[0]*(partial/1000)
-                        print("V2",components[i].pulse[1]*(partial/1000))
+                        vectorB[element2 - 1] += components[i].pulse[0]*(partial/100)
+                        print("V2",components[i].pulse[1]*(partial/100))
                     else:
-                        vectorB[element2 - 1] += components[i].pulse[0]*(partial/1000)
-                        print("V1",components[i].pulse[0]*(partial/1000))
+                        vectorB[element2 - 1] += components[i].pulse[0]*(partial/100)
+                        print("V1",components[i].pulse[0]*(partial/100))
+                elif(len(components[i].pwl)>0):
+                    vectorB[element2 - 1]+=components[i].pwl[0][1]*partial/100
                 else:
                     vectorB[element2 - 1] += 0
                 # 填入matrixA
@@ -958,7 +960,7 @@ def Dc_bias(
 #                   3.81658350e-21]
 # =============================================================================
                 if(iti_time==99):
-                    print("biasing_false: ",partial/1000*100)
+                    print("biasing_false: ",partial/100*100)
                     print()
                 for u in range(len(mos_node)):
                     # 紀錄mos的各節點

@@ -179,6 +179,45 @@ def step_euler(
                     matrixA_TV[place1-1][element2-1]+=1
                     matrixA_TV[place2-1][element2-1]-=1
             
+            elif(len(components[comp_number].pwl)>0):
+                time_table=[]
+                V_table=[]
+                for u in range(len(components[comp_number].pwl)):
+                        V_table.append(components[comp_number].pwl[u][1])
+                        
+                        time_table.append(components[comp_number].pwl[u][0])
+                #填入vector TV
+                #print(V_table)
+                #print(time_table)
+                voltage_ptr=0
+                for u in range(len(time_table)):
+                    if(t<time_table[u]):
+                        voltage_ptr=u-1#指向第n個電壓
+                        break
+                if(t>=time_table[-1]):
+                    vectorB_TV[element2-1]+=V_table[-1]
+                elif(V_table[voltage_ptr]==V_table[voltage_ptr+1]):
+                    #print(V_table[voltage_ptr+1])
+                    vectorB_TV[element2-1]+=V_table[voltage_ptr]
+                
+                else:
+                    voltage_gap=(V_table[voltage_ptr+1]-V_table[voltage_ptr])
+                    time_gap=time_table[voltage_ptr+1]-time_table[voltage_ptr]
+                    voltage_in_variation=V_table[voltage_ptr]+(t-time_table[voltage_ptr])*voltage_gap/time_gap
+                    print(voltage_in_variation)
+                    vectorB_TV[element2-1]+=voltage_in_variation
+                #填入matrixA_TV
+                if(str1=="0"):
+                    matrixA_TV[element2-1][place2-1]-=1
+                    matrixA_TV[place2-1][element2-1]-=1
+                elif(str2=="0"):
+                    matrixA_TV[element2-1][place1-1]+=1
+                    matrixA_TV[place1-1][element2-1]+=1  
+                else:
+                    matrixA_TV[element2-1][place1-1]+=1
+                    matrixA_TV[element2-1][place2-1]-=1
+                    matrixA_TV[place1-1][element2-1]+=1
+                    matrixA_TV[place2-1][element2-1]-=1
             else:#需要修改，給DC電壓源在外面填
                 vectorB[element2-1]+=components[comp_number].dc
                 #print("ewfew ",t)
@@ -730,12 +769,16 @@ def step_euler(
                     ptr_max_vgs=u
                 if(max(vds_diff)==vds_diff[u]):
                     ptr_max_vds=u
-            v_max_vgs=max(abs(vgs_his[ptr_max_vgs][1]),abs(vgs_his[ptr_max_vgs][1]))
-            v_max_vds=max(abs(vds_his[ptr_max_vds][1]),abs(vds_his[ptr_max_vds][1]))
+            v_max_vgs=0
+            v_max_vds=0
+            if(len(vgs_his)!=0):
+                v_max_vgs=max(abs(vgs_his[ptr_max_vgs][0]),abs(vgs_his[ptr_max_vgs][1]))
+                v_max_vds=max(abs(vds_his[ptr_max_vds][0]),abs(vds_his[ptr_max_vds][1]))
+                
             #print(max(vgs_diff)," x ",max(vds_diff)," ",iti)
             if((iti==0 or modified==1 or max(non_diff)>10**(-6) or 
                 abs(min(non_diff))>10**(-6)
-                or max(vgs_diff)> v_max_vgs*10**-6 or max(vds_diff)>v_max_vds*10**-6)
+                or max(vgs_diff)> v_max_vgs*10**-3 or max(vds_diff)>v_max_vds*10**-3)
                and iti<=100):
                 
                 iti+=1
@@ -951,6 +994,45 @@ def BDF2(L_pass,element1,nonlin_his,matrixA,vectorB,nodelist,C_pass,
                     matrixA_TV[element2-1][place2-1]-=1
                     matrixA_TV[place1-1][element2-1]+=1
                     matrixA_TV[place2-1][element2-1]-=1    
+            elif(len(components[comp_number].pwl)>0):
+                time_table=[]
+                V_table=[]
+                for u in range(len(components[comp_number].pwl)):
+                        V_table.append(components[comp_number].pwl[u][1])
+                        
+                        time_table.append(components[comp_number].pwl[u][0])
+                #填入vector TV
+                #print(V_table)
+                #print(time_table)
+                voltage_ptr=0
+                for u in range(len(time_table)):
+                    if(t<time_table[u]):
+                        voltage_ptr=u-1#指向第n個電壓
+                        break
+                if(t>=time_table[-1]):
+                    vectorB_TV[element2-1]+=V_table[-1]
+                elif(V_table[voltage_ptr]==V_table[voltage_ptr+1]):
+                    #print(V_table[voltage_ptr+1])
+                    vectorB_TV[element2-1]+=V_table[voltage_ptr]
+                
+                else:
+                    voltage_gap=(V_table[voltage_ptr+1]-V_table[voltage_ptr])
+                    time_gap=time_table[voltage_ptr+1]-time_table[voltage_ptr]
+                    voltage_in_variation=V_table[voltage_ptr]+(t-time_table[voltage_ptr])*voltage_gap/time_gap
+                    print(voltage_in_variation)
+                    vectorB_TV[element2-1]+=voltage_in_variation
+                #填入matrixA_TV
+                if(str1=="0"):
+                    matrixA_TV[element2-1][place2-1]-=1
+                    matrixA_TV[place2-1][element2-1]-=1
+                elif(str2=="0"):
+                    matrixA_TV[element2-1][place1-1]+=1
+                    matrixA_TV[place1-1][element2-1]+=1  
+                else:
+                    matrixA_TV[element2-1][place1-1]+=1
+                    matrixA_TV[element2-1][place2-1]-=1
+                    matrixA_TV[place1-1][element2-1]+=1
+                    matrixA_TV[place2-1][element2-1]-=1
             else:#需要修改，給DC電壓源在外面填
                 ##print("xxx")
                 vectorB[element2-1]+=components[comp_number].dc
@@ -1500,12 +1582,15 @@ def BDF2(L_pass,element1,nonlin_his,matrixA,vectorB,nodelist,C_pass,
                     ptr_max_vgs=u
                 if(max(vds_diff)==vds_diff[u]):
                     ptr_max_vds=u
-            v_max_vgs=max(abs(vgs_his[ptr_max_vgs][1]),abs(vgs_his[ptr_max_vgs][1]))
-            v_max_vds=max(abs(vds_his[ptr_max_vds][1]),abs(vds_his[ptr_max_vds][1]))
+            v_max_vgs=0
+            v_max_vds=0
+            if(len(vgs_his)!=0):
+                v_max_vgs=max(abs(vgs_his[ptr_max_vgs][0]),abs(vgs_his[ptr_max_vgs][1]))
+                v_max_vds=max(abs(vds_his[ptr_max_vds][0]),abs(vds_his[ptr_max_vds][1]))
             #print(max(vgs_diff)," x ",max(vds_diff)," ",iti)
             if((iti==0 or modified==1 or max(non_diff)>10**(-6) or 
                 abs(min(non_diff))>10**(-6)
-                or max(vgs_diff)> v_max_vgs*10**-6 or max(vds_diff)>v_max_vds*10**-6)
+                or max(vgs_diff)> v_max_vgs*10**-3 or max(vds_diff)>v_max_vds*10**-3)
                and iti<=100):
                 #
                 

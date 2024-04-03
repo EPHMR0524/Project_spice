@@ -131,7 +131,8 @@ def link_program(program):
 
 
 if __name__ == "__main__":
-    file_name = input("file name: ")
-    with open(r"C:\Users\USER\Desktop\project_spice\netlist"+ "\\" + file_name, "r") as f:
+    # file_name = input("file name: ")
+    file_name = "test.txt"
+    with open(file_name, "r") as f:
         program = f.read()
     print(link_program(program))

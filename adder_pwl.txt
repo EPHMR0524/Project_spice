@@ -55,20 +55,15 @@ r2 S 0 100meg
 X_fa0 X0 Y0 C0 C1 S_0 VDD VSS fa
 X_fa1 X1 Y1 C1 C2 S_1 VDD VSS fa
 X_fa2 X2 Y2 C2 C3 S_2 VDD1 VSS1 fa
-X_fa3 X3 Y3 C3 C4 S_3 VDD1 VSS1 fa
-X_fa4 X4 Y4 C4 C5 S_4 VDD1 VSS1 fa
-VX0 X0 0 pwl 0 0 4m 0 4.01m 2
-VY0 Y0 0 dc 2
-VX1 X1 0 pwl 0 0 2.0m 0 2.01m 2 4.0m 2 4.01m 0
-VY1 Y1 0 dc 2
-VX2 X2 0 dc 0
-VY2 Y2 0 dc 2
-VX3 X3 0 dc 0
-VY3 Y3 0 dc 2
-VX4 X4 0 pwl 0 0 2.0m 0 2.01m 2
-VY4 Y4 0 dc 2
+VX2 X2 VSS pwl 0 0 4m 0 4.01m 2
+VX1 X1 VSS pwl 0 0 2.0m 0 2.01m 2 4.0m 2 4.01m 0
+VX0 X0 VSS pwl 0 0 1.0m 0 1.01m 2 2.0m 2 2.01m 0 3.0m 0 3.01m 2 4.0m 2 4.01m 0
+VY2 Y2 VSS pwl 0 0 0.01m 2 4.0m 2 4.01m 0
+VY1 Y1 VSS pwl 0 0 2.0m 0 2.01m 2
+VY0 Y0 VSS pwl 0 0 1.0m 0 1.01m 2 2.0m 2 2.01m 0 3.0m 0 3.01m 2
 
-VC0 C0 0 dc 0
+
+VC0 C0 0 Dc 0
 VD1 VDD1 0 dc 2
 Vs1 VSS1 0 dc 0 
 VD VDD 0 dc 2

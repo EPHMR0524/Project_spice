@@ -561,7 +561,7 @@ def ac_analysis(
     print(j_array)
     print(len(result))
     print(x[0], x[-1])
-    plot_picture(templist, namelist, times, result, cmd, x)
+    plot_picture(templist, namelist, times, result, cmd, x,circuit_name)
 
 
 def Dc_analysis(
@@ -1751,7 +1751,7 @@ def Dc_analysis(
         lines=[str(x_axis[i])," ",str(result[i][2]),'\n']
         f.writelines(lines)
     f.close()
-    plot_picture_dc(templist, namelist, times, result, cmd, x_axis)
+    plot_picture_dc(templist, namelist, times, result, cmd, x_axis,circuit_name,object_source)
 
 
 # def tran_analysis(templist,element2,element,dic_node,matrix_size,cmd,namelist,nodelist,circuit_name,valuelist,typelist,components,V_step,start_V,end_V,object_source):

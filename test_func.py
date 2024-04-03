@@ -162,7 +162,9 @@ elif(cmd[0].lower()=="dc"):
             cmd_cond=False
             break
     #dc_bias
-    null,vds_his,vgs_his=Dc_bias(
+    C_pass=[[]]
+    L_pass=[[]]
+    nonlin_his,vds_his,vgs_his,C_pass,L_pass,X0=Dc_bias(
         templist,
         element2,
         element,
@@ -179,7 +181,9 @@ elif(cmd[0].lower()=="dc"):
         vgs_his,
         vds_his,
         null,
-        start_V
+        start_V,
+        C_pass,
+        L_pass
     )
     #sweeping
     
