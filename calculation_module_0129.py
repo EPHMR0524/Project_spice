@@ -44,6 +44,7 @@ def ac_analysis(
     C_ox = epsilon_0 * epsilon_SiO2 / t_ox
     k_n = u_n * C_ox
     k_p=u_n * C_ox
+    
     if cmd[1] == "dec":
         # 計算模擬次數(資料數量)
         print("data row:", (np.log10(end_freq) - np.log10(start_freq)) * freq_step + 1)

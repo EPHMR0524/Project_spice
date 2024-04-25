@@ -94,19 +94,23 @@ def plot_picture(templist,namelist,times,result,cmd,x,circuit_name):
         for i in range(times):
             if(operator=="+"):
                 y[i]=y[i]+z[i]
+                y[i]=abs(y[i])
             elif(operator=="-"):
-                y[i]=y[i]-z[i] 
+                y[i]=y[i]-z[i]
+                y[i]=abs(y[i])
             elif(operator=="*"):
                 y[i]=y[i]*z[i] 
+                y[i]=abs(y[i])
             elif(operator=="/"):
-                y[i]=y[i]/z[i] 
+                y[i]=y[i]/z[i]
+                y[i]=abs(y[i])
             else :
-                y[i]=y[i]
+                y[i]=abs(y[i])
         if(cmd[0]=="ac" and (cmd[1]=="dec" or cmd[1]=="oct")):
             plt.xscale("log")
             plt.xlabel("Frequency (Hz in log scale)",fontsize=14)
         else:
-            plt.xlabel("Frequency Hz ",fontsize=14)
+            plt.xlabel("Frequency (Hz) ",fontsize=14)
         plt.title(circuit_name,fontsize=20)
 # =============================================================================
 # =============================================================================

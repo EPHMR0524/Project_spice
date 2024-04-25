@@ -43,7 +43,7 @@ def Dc_bias(
     C_ox = epsilon_0 * epsilon_SiO2 / t_ox
     k_n = u_n * C_ox
     k_p=u_p * C_ox
-    #print(k_p)
+    print(k_n)
     result = []
     matrixA = np.zeros((matrix_size, matrix_size))
     matrixA_nonlin = np.zeros((matrix_size, matrix_size))
