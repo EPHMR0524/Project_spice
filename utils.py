@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 def unit_symbol(symbol):
     if isinstance(symbol, (float, int)):
         return float(symbol)
@@ -102,8 +103,10 @@ def plot_picture(templist,namelist,times,result,cmd,x,circuit_name):
                 y[i]=y[i]*z[i] 
                 y[i]=abs(y[i])
             elif(operator=="/"):
-                y[i]=y[i]/z[i]
-                y[i]=abs(y[i])
+                #y[i]=abs(y[i])/abs(z[i])
+                #y[i]=abs(y[i]/z[i])
+                y[i]=20*np.log10(abs(y[i])/abs(z[i]))
+                
             else :
                 y[i]=abs(y[i])
         if(cmd[0]=="ac" and (cmd[1]=="dec" or cmd[1]=="oct")):
@@ -114,7 +117,7 @@ def plot_picture(templist,namelist,times,result,cmd,x,circuit_name):
         plt.title(circuit_name,fontsize=20)
 # =============================================================================
 # =============================================================================
-        plt.ylabel(object_value1[0].upper(),fontsize=14)
+        plt.ylabel("db(vo/vi)",fontsize=14)
         plt.plot(x,y,linewidth=1)
         # 實線
         plt.plot(x, y, linestyle='-', label=object_value1)
@@ -126,7 +129,11 @@ def plot_picture(templist,namelist,times,result,cmd,x,circuit_name):
         if(operator==" "):
             plt.plot(x, z, linestyle='--', label=object_value2)
             # 圖例
-        
+        file_name="RLC"+'_output.txt'
+        file=open(file_name,'w')
+        for i in range(len((x))):
+            file.write(str(x[i])+" "+str(y[i])+"\n")
+        file.close()
         plt.legend()     
         plt.grid()
         plt.rcParams['figure.dpi'] = 300
@@ -237,6 +244,16 @@ def plot_picture_trans(templist,namelist,result,cmd,x,circuit_name):
         
         if(operator==" "):
             plt.plot(x, z, linestyle='--', label=object_value2)
+            file_name=object_value1+'_output.txt'
+            file=open(file_name,'w')
+            for i in range(len((x))):
+                file.write(str(x[i])+" "+str(z[i]))
+        else:
+            file_name=object_value1+'_output.txt'
+            file=open(file_name,'w')
+            for i in range(len((x))):
+                file.write(str(x[i])+" "+str(y[i])+"\n")
+            file.close()
             # 圖例
         
         plt.legend()     
